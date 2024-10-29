@@ -22,17 +22,17 @@ data class Product(
 
     var price: Long? = null,
     var description: String? = null,
-    var stock: Int = 0,
+    var stock: Int? = 0,
 
     @CreatedDate
-    val createdAt: LocalDateTime? = null,
+    var createdAt: LocalDateTime? = null,
     @LastModifiedDate
-    val updatedAt: LocalDateTime? = null,
+    var updatedAt: LocalDateTime? = null,
 
     @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
     @CollectionTable(name = "product_image", joinColumns = [JoinColumn(name = "productId")])
     @BatchSize(size = 100)
-    val images: SortedSet<ProductImage> = sortedSetOf()
+    var images: SortedSet<ProductImage> = sortedSetOf()
 ) {
     fun addImage(productImage: ProductImage) { // productImage 를 매개변수로 넘기도록 수정
         images.add(productImage)
