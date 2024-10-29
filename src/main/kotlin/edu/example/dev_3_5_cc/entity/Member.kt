@@ -1,6 +1,5 @@
-package edu.example.dev_3_cc.entity
+package edu.example.dev_3_5_cc.entity
 
-import edu.example.dev_3_5_cc.entity.MemberImage
 import jakarta.persistence.*
 import jakarta.validation.constraints.Email
 import org.springframework.data.annotation.CreatedDate
@@ -12,7 +11,6 @@ import java.time.LocalDateTime
 @Entity
 data class Member (
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val memberId: String? = null,
 
     var email: @Email String? = null,
