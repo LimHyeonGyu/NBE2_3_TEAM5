@@ -1,8 +1,6 @@
 package edu.example.dev_3_5_cc.dto.product
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import edu.example.dev_3_5_cc.entity.Product
-import edu.example.dev_3_5_cc.entity.ProductImage
 import jakarta.validation.constraints.Min
 
 data class ProductRequestDTO(

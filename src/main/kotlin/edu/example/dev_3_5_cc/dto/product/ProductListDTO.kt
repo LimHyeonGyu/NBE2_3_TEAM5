@@ -1,7 +1,6 @@
 package edu.example.dev_3_5_cc.dto.product
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import edu.example.dev_3_5_cc.entity.Product
 
 data class ProductListDTO(
     val productId: Long? = null,
