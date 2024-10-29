@@ -22,7 +22,7 @@ data class Product(
 
     var price: Long? = null,
     var description: String? = null,
-    var stock: Int? = 0,
+    var stock: Int = 0,
 
     @CreatedDate
     var createdAt: LocalDateTime? = null,
