@@ -3,6 +3,8 @@ package edu.example.dev_3_5_cc.service
 import edu.example.dev_3_5_cc.dto.PageRequestDTO
 import edu.example.dev_3_5_cc.dto.product.ProductRequestDTO
 import edu.example.dev_3_5_cc.dto.product.ProductUpdateDTO
+import edu.example.dev_3_5_cc.exception.ProductException
+import edu.example.dev_3_5_cc.exception.ProductTaskException
 import edu.example.dev_3_5_cc.repository.ProductRepository
 import jakarta.persistence.EntityNotFoundException
 import org.junit.jupiter.api.*
@@ -80,7 +82,7 @@ class ProductServiceTests {
     fun delete() {
         val productId = 2L
         productService.delete(productId)
-        assertThrows<EntityNotFoundException> {
+        assertThrows<ProductTaskException> {
             productService.read(productId)
         }
     }
