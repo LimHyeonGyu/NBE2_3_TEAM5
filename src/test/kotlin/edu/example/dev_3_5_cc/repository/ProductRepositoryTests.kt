@@ -4,7 +4,6 @@ import edu.example.dev_3_5_cc.entity.Product
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.opentest4j.AssertionFailedError
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageRequest
@@ -128,6 +127,40 @@ class ProductRepositoryTests {
             assertEquals(100, totalElements)
             assertEquals(10, totalPages)
             assertEquals(0, number)
+            assertEquals(10, size)
+            assertEquals(10, content.size)
+        }
+    }
+
+    @Test
+    @Order(9)
+    fun testSearch() {
+        val pageable: Pageable = PageRequest.of(
+            9, 10, Sort.by("productId").descending()
+        )
+
+        val productPage = productRepository.list(pageable)!!
+        with(productPage) {
+            assertEquals(100, totalElements)
+            assertEquals(10, totalPages)
+            assertEquals(9, number)
+            assertEquals(10, size)
+            assertEquals(10, content.size)
+        }
+    }
+
+    @Test
+    @Order(10)
+    fun testSearch2() {
+        val pageable: Pageable = PageRequest.of(
+            9, 10, Sort.by("productId").descending()
+        )
+
+        val productPage = productRepository.listWithAllImages(pageable)
+        with(productPage) {
+            assertEquals(100, totalElements)
+            assertEquals(10, totalPages)
+            assertEquals(9, number)
             assertEquals(10, size)
             assertEquals(10, content.size)
         }

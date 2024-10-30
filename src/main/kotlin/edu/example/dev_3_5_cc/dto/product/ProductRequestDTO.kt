@@ -1,6 +1,7 @@
 package edu.example.dev_3_5_cc.dto.product
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import edu.example.dev_3_5_cc.entity.Product
 import jakarta.validation.constraints.Min
 
 data class ProductRequestDTO(
@@ -16,4 +17,12 @@ data class ProductRequestDTO(
     val stock: Int = 0,
 
     val images: List<String> = emptyList()
-)
+) {
+    constructor(product: Product): this (
+        pName = product.pName,
+        price = product.price,
+        description = product.description,
+        stock = product.stock,
+        images = product.images.map { it.filename }
+    )
+}
