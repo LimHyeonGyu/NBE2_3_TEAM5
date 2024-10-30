@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 
 @SpringBootApplication
 @EnableScheduling
+@EnableJpaAuditing
 class Dev35CcApplication
 
 fun main(args: Array<String>) {

@@ -3,8 +3,10 @@ package edu.example.dev_3_5_cc.entity
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
+@EntityListeners(AuditingEntityListener::class)
 @Entity
 data class Board(
     @Id
@@ -19,7 +21,7 @@ data class Board(
     var description : String? = null,
 
     @OneToMany(mappedBy = "board", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    private var images: MutableList<BoardImage?>? = ArrayList(),
+    private var images: MutableList<BoardImage> = mutableListOf(),
 
     @OneToMany(
         mappedBy = "board",
@@ -32,9 +34,9 @@ data class Board(
     var category : Category? = null,
 
     @CreatedDate
-    val createdAt: LocalDateTime? = null,
+    var createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
-    val updatedAt: LocalDateTime? = null
+    var updatedAt: LocalDateTime? = null
 
 )
