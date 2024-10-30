@@ -12,7 +12,7 @@ import java.util.*
 
 interface ProductRepository: JpaRepository<Product, Long>, ProductSearch {
     @Query(" SELECT p FROM Product p JOIN FETCH p.images pi WHERE p.productId = :productId ")
-    fun getProduct(@Param("productId") productId: Long): Optional<Product>
+    fun getProduct(@Param("productId") productId: Long): Product?
 
     @Query("SELECT p FROM Product p JOIN FETCH p.images pi WHERE p.productId = :productId")
     fun getProductDTO(@Param("productId") productId: Long): Optional<ProductRequestDTO>?

@@ -6,6 +6,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface ProductSearch {
-    fun list(pageable: Pageable): Page<ProductListDTO>
+    fun list(pageable: Pageable): Page<ProductListDTO>?
     fun listWithAllImages(pageable: Pageable): Page<ProductRequestDTO>
 }

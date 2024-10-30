@@ -11,7 +11,6 @@ import edu.example.dev_3_5_cc.entity.QProductImage.productImage
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.support.Querydsl
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
 class ProductSearchImpl: QuerydslRepositorySupport(Product::class.java), ProductSearch {

@@ -2,6 +2,7 @@ package edu.example.dev_3_5_cc.dto.product
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import edu.example.dev_3_5_cc.entity.Product
+import edu.example.dev_3_5_cc.entity.ProductImage
 import jakarta.validation.constraints.Min
 
 data class ProductRequestDTO(
@@ -25,4 +26,18 @@ data class ProductRequestDTO(
         stock = product.stock,
         images = product.images.map { it.filename }
     )
+
+    fun toEntity(): Product = Product(
+        pName = pName,
+        price = price,
+        description = description,
+        stock = stock,
+        images = images.ifEmpty {
+            listOf("default.png")
+        }.mapIndexed { index, filename ->
+            ProductImage(ino = index, filename = filename)
+        }.toSortedSet()
+    )
 }
+
+

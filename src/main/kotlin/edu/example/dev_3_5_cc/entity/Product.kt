@@ -1,6 +1,7 @@
 package edu.example.dev_3_5_cc.entity
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import edu.example.dev_3_5_cc.entity.QProductImage.productImage
 import jakarta.persistence.*
 import org.hibernate.annotations.BatchSize
 import org.springframework.data.annotation.CreatedDate
@@ -34,12 +35,11 @@ data class Product(
     @BatchSize(size = 100)
     var images: SortedSet<ProductImage> = sortedSetOf()
 ) {
-    fun addImage(productImage: ProductImage) { // productImage 를 매개변수로 넘기도록 수정
-        images.add(productImage)
-    }
+    fun addImage(filename: String) = images.add(
+        ProductImage(ino = images.size, filename = filename)
+    )
 
     fun clearImages() {
         images.clear()
     }
-
 }
