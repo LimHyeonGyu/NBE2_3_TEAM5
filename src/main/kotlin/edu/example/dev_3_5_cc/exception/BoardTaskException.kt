@@ -5,6 +5,6 @@ import java.lang.RuntimeException
 class BoardTaskException (
     override val message : String,
     val code : Int
-): RuntimeException(message){
+): RuntimeException(){
 
 }

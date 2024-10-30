@@ -67,7 +67,7 @@ class BoardService(
             return boardList
         } catch (e: Exception) {
             log.error(e.message)
-            throw BoardException.NOT_FOUND.toBoardTaskException() //임시
+            throw BoardException.NOT_FOUND.get() //임시
         }
     }
 

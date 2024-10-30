@@ -10,7 +10,7 @@ enum class BoardException(val message: String, val code: Int) {
     NOT_DELETED("Board Not Deleted", 400),
     IMAGE_NOT_FOUND("Image Not Found", 404);
 
-    fun toBoardTaskException(): BoardTaskException {
-        return BoardTaskException(message, code)
-    }
+    val boardTaskException: BoardTaskException = BoardTaskException(message, code)
+
+    fun get(): BoardTaskException { return boardTaskException }
 }

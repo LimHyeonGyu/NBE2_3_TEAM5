@@ -44,7 +44,7 @@ class BoardUploadUtil(
             return filenames
         }
 
-        val board = boardRepository.findByIdOrNull(boardId) ?: throw BoardException.NOT_FOUND.toBoardTaskException()
+        val board = boardRepository.findByIdOrNull(boardId) ?: throw BoardException.NOT_FOUND.get()
 
         files.forEach { file ->
             if (file.isEmpty) return@forEach
@@ -83,7 +83,7 @@ class BoardUploadUtil(
 
     // 개별 파일 삭제
     fun deleteFile(boardId: Long, filename: String) {
-        val board = boardRepository.findByIdOrNull(boardId) ?: throw BoardException.NOT_FOUND.toBoardTaskException()
+        val board = boardRepository.findByIdOrNull(boardId) ?: throw BoardException.NOT_FOUND.get()
 
         // 이미지 존재하는지 확인
         val boardImage = board?.images?.firstOrNull { it.filename == filename }
