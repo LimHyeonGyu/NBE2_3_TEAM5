@@ -11,21 +11,23 @@ import java.time.LocalDateTime
 @Entity
 data class Member (
     @Id
-    val memberId: String? = null,
+    var memberId: String? = null,
 
-    var email: @Email String? = null,
+    @Email
+    var email:String? = null,
+
     var phoneNumber: String? = null,
     var name: String? = null,
     var password: String? = null,
-    val sex: String? = null,
+    var sex: String? = null,
     var address: String? = null,
     var role: String? = null,
 
     @CreatedDate
-    val createdAt: LocalDateTime? = null,
+    var createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
-    val updatedAt: LocalDateTime? = null,
+    var updatedAt: LocalDateTime? = null,
 
     @Embedded
     @AttributeOverrides(
@@ -34,8 +36,8 @@ data class Member (
             column = Column(name = "member_image")
         )
     )
-
     var image: MemberImage? = null
+
 ) {
     fun addImage(memberImage: MemberImage?) {
         this.image = memberImage
