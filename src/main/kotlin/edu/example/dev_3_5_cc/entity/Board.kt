@@ -21,14 +21,14 @@ data class Board(
     var description : String? = null,
 
     @OneToMany(mappedBy = "board", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    private var images: MutableList<BoardImage> = mutableListOf(),
+    var images: MutableList<BoardImage> = mutableListOf(),
 
     @OneToMany(
         mappedBy = "board",
         fetch = FetchType.LAZY,
         cascade = [CascadeType.ALL]
     ) @OrderBy("createdAt ASC") // 댓글을 생성일 순으로 조회
-    private var replies: MutableList<Reply?>? = ArrayList(),
+    var replies: MutableList<Reply?>? = ArrayList(),
 
     @Enumerated(EnumType.STRING)
     var category : Category? = null,
