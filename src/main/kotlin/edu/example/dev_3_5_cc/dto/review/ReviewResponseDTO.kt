@@ -1,4 +1,4 @@
-package edu.example.dev_3_5_cc.dto
+package edu.example.dev_3_5_cc.dto.review
 
 import edu.example.dev_3_5_cc.entity.Review
 import jakarta.validation.constraints.NotBlank
