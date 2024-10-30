@@ -2,7 +2,7 @@ package edu.example.dev_3_5_cc.repository.search
 
 import com.querydsl.core.types.Projections
 import com.querydsl.jpa.JPQLQuery
-import edu.example.dev_3_5_cc.dto.BoardListDTO
+import edu.example.dev_3_5_cc.dto.board.BoardListDTO
 import edu.example.dev_3_5_cc.entity.Board
 import edu.example.dev_3_5_cc.entity.QBoard
 import org.springframework.data.domain.Page

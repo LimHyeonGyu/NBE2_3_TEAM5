@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Commit
 import java.util.*
@@ -84,9 +87,40 @@ class BoardRepositoryTest {
 
     @Test
     @Transactional
-    @Commit
     fun testFindAll(){
+        val pageable: Pageable = PageRequest.of(
+            0,
+            10,
+            Sort.by("boardId").ascending())
 
+        val boardPage = boardRepository.findAll(pageable)!!
+        with(boardPage){
+            assertEquals(2, totalElements)
+            assertEquals(1, totalPages)
+            assertEquals(0, number)
+            assertEquals(10, size)
+
+        }
+        boardPage.content.forEach { println(it) }
+    }
+
+    @Test
+    @Transactional
+    fun testList(){
+        val pageable: Pageable = PageRequest.of(
+            0,
+            10,
+            Sort.by("boardId").ascending())
+
+        val boardPage = boardRepository.list(pageable)!!
+        with(boardPage){
+            assertEquals(2, totalElements)
+            assertEquals(1, totalPages)
+            assertEquals(0, number)
+            assertEquals(10, size)
+
+        }
+        boardPage.content.forEach { println(it) }
     }
 
 
