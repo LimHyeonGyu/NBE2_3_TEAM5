@@ -39,4 +39,16 @@ data class Board(
     @LastModifiedDate
     var updatedAt: LocalDateTime? = null
 
-)
+){
+    // 이미지 추가
+    fun addImage(image: BoardImage) {
+        images.add(image)
+        image.board = this // 양방향 연관관계 설정
+    }
+
+    // 이미지 삭제
+    fun removeImage(image: BoardImage) {
+        images.remove(image)
+        image.board = null // 양방향 연관관계 해제
+    }
+}
