@@ -13,15 +13,16 @@ data class ReplyResponseDTO (
     var createdAt : LocalDateTime? = null,
     var updatedAt : LocalDateTime? = null
 ){
-    constructor(reply : Reply) : this(
-        replyId = reply.replyId,
-        memberId = reply.member?.memberId,
-        boardId = reply.board?.boardId,
-        content = reply.content,
+    constructor(reply : Reply) :
+            this(
+                replyId = reply.replyId,
+                memberId = reply.member?.memberId,
+                boardId = reply.board?.boardId,
+                content = reply.content,
         // 대충 썸네일 넣는 코드 한 줄
         // thumbnail = reply.member?.image 뭐 이런식으로 여기서 조금만 수정해서 넣으면 될 것 같아요
-        createdAt = reply.createdAt,
-        updatedAt = reply.updatedAt
+                createdAt = reply.createdAt,
+                updatedAt = reply.updatedAt
 
     )
 }

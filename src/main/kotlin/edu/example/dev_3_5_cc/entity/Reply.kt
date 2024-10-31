@@ -9,8 +9,9 @@ import java.time.LocalDateTime
 @EntityListeners(AuditingEntityListener::class)
 @Entity
 data class Reply(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-     var replyId: Long? = null,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var replyId: Long? = 0,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
