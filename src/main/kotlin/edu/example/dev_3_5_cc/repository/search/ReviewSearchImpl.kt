@@ -28,7 +28,7 @@ class ReviewSearchImpl : QuerydslRepositorySupport(Review::class.java), ReviewSe
             )
         )
 
-        super.getQuerydsl()?.applyPagination(pageable, dtoQuery)
+        querydsl!!.applyPagination(pageable, dtoQuery)
 
         val reviewList: List<ReviewListDTO> = dtoQuery.fetch()
         val count = dtoQuery.fetchCount()

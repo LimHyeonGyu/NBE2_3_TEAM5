@@ -5,9 +5,11 @@ import org.springframework.boot.runApplication
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 
 @SpringBootApplication
 @EnableScheduling
+@EnableJpaAuditing
 class Dev35CcApplication
 inline val <reified T> T.log : Logger
     get() = LogManager.getLogger()

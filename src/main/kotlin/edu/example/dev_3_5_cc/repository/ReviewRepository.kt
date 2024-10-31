@@ -11,12 +11,12 @@ import java.util.*
 
 interface ReviewRepository : JpaRepository<Review, Long>,ReviewSearch {
     @Query("SELECT r FROM Review r WHERE r.product.productId = :productId AND r.member.memberId = :memberId")
-    fun findByProduct_IdAndMember_Id(@Param("productId") productId: Long,@Param("memberId") memberId: String): Optional<Review>
+    fun findByProductIdAndMemberId(@Param("productId") productId: Long,@Param("memberId") memberId: String): Optional<Review>
 
 
     @Query("SELECT r FROM Review r WHERE r.member.memberId = :memberId")
-    fun findByMember_Id(memberId : String, pageable : Page<Review>) : Page<Review>
+    fun findByMemberId(@Param("memberId") memberId : String, pageable : Pageable) : Page<Review>
 
     @Query("SELECT r FROM Review r WHERE r.product.productId = :productId")
-    fun findReviewsByProductId(@Param("product_id") productId: Long , pageable: Pageable) : Page<Review>
+    fun findByProductId(@Param("productId") productId: Long , pageable: Pageable) : Page<Review>
 }
