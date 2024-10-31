@@ -4,5 +4,5 @@ import jakarta.persistence.Embeddable
 
 @Embeddable
 data class MemberImage (
-    val filename: String? = null
+    var filename: String? = null
 )
