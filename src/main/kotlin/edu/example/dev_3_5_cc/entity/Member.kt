@@ -13,7 +13,9 @@ data class Member (
     @Id
     var memberId: String? = null,
 
-    var email: @Email String? = null,
+    @Email
+    var email:String? = null,
+
     var phoneNumber: String? = null,
     var name: String? = null,
     var password: String? = null,
@@ -34,8 +36,8 @@ data class Member (
             column = Column(name = "member_image")
         )
     )
-
     var image: MemberImage? = null
+
 ) {
     fun addImage(memberImage: MemberImage?) {
         this.image = memberImage
