@@ -42,4 +42,8 @@ data class Product(
     fun clearImages() {
         images.clear()
     }
+
+    fun changeStock(stock: Int) {
+        this.stock = stock
+    }
 }

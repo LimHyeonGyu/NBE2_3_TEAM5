@@ -7,4 +7,4 @@ data class BoardUpdateDTO (
     var title: String? = null,
     var description: String? = null,
     var category: Category = Category.GENERAL
-){}
+)
