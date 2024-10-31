@@ -133,7 +133,28 @@ class OrderServiceTest {
 
     @Test
     @Order(3)
-    fun testFindOrderById() {}
+    fun testFindOrderById() {
+        //GIVEN -> 테스트용 OrderRequestDTO 생성
+        val order = OrderRequestDTO().apply {
+            memberId = member?.memberId
+            email = null
+            name = null
+            address = null
+            phoneNumber = null
+            orderItems = orderItem
+        }
+        val createdOrder = orderService.createOrder(order)
+        //WHEN
+        val foundOrder = orderService.findOrderById(createdOrder.orderId!!)
+
+        //THEN
+        assertNotNull(foundOrder)
+        assertEquals(createdOrder.orderId, foundOrder.orderId)
+        assertEquals(createdOrder.email, foundOrder.email)
+        assertEquals(createdOrder.name, foundOrder.name)
+        assertEquals(createdOrder.address, foundOrder.address)
+        assertEquals(createdOrder.phoneNumber, foundOrder.phoneNumber)
+    }
 
 
 }
