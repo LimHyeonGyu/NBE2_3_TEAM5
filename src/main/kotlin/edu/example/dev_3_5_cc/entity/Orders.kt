@@ -32,8 +32,11 @@ data class Orders(
 
     @UpdateTimestamp
     var updatedAt: LocalDateTime? = null
-)
-{
+) {
+    override fun toString(): String {
+        return "Orders(orderId=$orderId, email='$email', name='$name', address='$address', phoneNumber='$phoneNumber')"
+    }
+
     fun changeOrderStatus(orderStatus: OrderStatus) {
         this.orderStatus = orderStatus
     }
