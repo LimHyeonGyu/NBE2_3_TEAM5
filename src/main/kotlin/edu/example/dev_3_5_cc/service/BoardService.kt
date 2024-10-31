@@ -1,10 +1,11 @@
 package edu.example.dev_3_5_cc.service
 
+
 import edu.example.dev_3_5_cc.dto.board.BoardListDTO
 import edu.example.dev_3_5_cc.dto.board.BoardRequestDTO
 import edu.example.dev_3_5_cc.dto.board.BoardResponseDTO
 import edu.example.dev_3_5_cc.dto.board.BoardUpdateDTO
-import edu.example.dev_3_5_cc.dto.product.PageRequestDTO
+import edu.example.dev_3_5_cc.dto.PageRequestDTO
 import edu.example.dev_3_5_cc.entity.Board
 import edu.example.dev_3_5_cc.exception.BoardException
 import edu.example.dev_3_5_cc.repository.BoardRepository
