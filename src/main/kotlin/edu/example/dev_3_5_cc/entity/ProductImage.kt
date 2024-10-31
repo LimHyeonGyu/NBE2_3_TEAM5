@@ -8,5 +8,4 @@ data class ProductImage(
     var filename: String = ""
 ): Comparable<ProductImage> {
     override fun compareTo(other: ProductImage): Int = this.ino - other.ino
-
 }

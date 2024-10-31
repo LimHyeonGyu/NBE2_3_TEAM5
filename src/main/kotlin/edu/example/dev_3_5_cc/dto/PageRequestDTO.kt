@@ -1,4 +1,4 @@
-package edu.example.dev_3_5_cc.dto.product
+package edu.example.dev_3_5_cc.dto
 
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
