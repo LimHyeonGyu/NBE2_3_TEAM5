@@ -6,29 +6,26 @@ import edu.example.dev_3_5_cc.entity.Orders
 import edu.example.dev_3_5_cc.entity.Product
 import edu.example.dev_3_5_cc.log
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Commit
+import org.springframework.test.context.TestPropertySource
 import org.springframework.transaction.annotation.Transactional
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @SpringBootTest
 @Transactional
+@TestPropertySource(locations = ["classpath:application-test.properties"])
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class OrderRepositoryTest {
     @Autowired
     private lateinit var productRepository: ProductRepository
-
     @Autowired
     lateinit var orderRepository: OrderRepository
-    @Autowired
-    lateinit var ProductRepository : ProductRepository
-
     var product: Product? = null
 
     @BeforeEach
@@ -49,6 +46,7 @@ class OrderRepositoryTest {
     }
 
     @Test
+    @Order(1)
     @DisplayName("주문 생성 테스트")
     fun testInsert() {
         //GIVEN - Order 엔티티 객체 생성
@@ -73,6 +71,7 @@ class OrderRepositoryTest {
     }
 
     @Test
+    @Order(2)
     @DisplayName("주문 목록 조회 테스트")
     fun testFindAllOrders() {
         // Given
@@ -103,6 +102,7 @@ class OrderRepositoryTest {
     }
 
     @Test
+    @Order(3)
     @DisplayName("주문 조회 테스트")
     fun testFindOrderById() {
         // Given
@@ -125,6 +125,7 @@ class OrderRepositoryTest {
     }
 
     @Test
+    @Order(4)
     @Commit
     @DisplayName("주문 상태 수정 테스트")
     fun testUpdateOrderStatus() {
@@ -149,6 +150,7 @@ class OrderRepositoryTest {
 
 
     @Test
+    @Order(5)
     @Transactional
     @DisplayName("주문 삭제 테스트")
     fun testDeleteOrder() {
