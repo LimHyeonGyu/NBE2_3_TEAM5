@@ -3,27 +3,29 @@ package edu.example.dev_3_5_cc.entity
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
+@EntityListeners(AuditingEntityListener::class)
 @Entity
 data class Reply(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private var replyId: Long? = null,
+     var replyId: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-    private var board: Board? = null,
+     var board: Board? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private var member: Member? = null,
+     var member: Member? = null,
 
-    private var content: String? = null,
+     var content: String? = null,
 
     @CreatedDate
-    private var createdAt: LocalDateTime? = null,
+     var createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
-    private var updatedAt: LocalDateTime? = null
+     var updatedAt: LocalDateTime? = null
 
 )
