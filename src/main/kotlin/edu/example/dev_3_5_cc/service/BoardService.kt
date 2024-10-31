@@ -6,6 +6,7 @@ import edu.example.dev_3_5_cc.dto.board.BoardResponseDTO
 import edu.example.dev_3_5_cc.dto.board.BoardUpdateDTO
 import edu.example.dev_3_5_cc.dto.product.PageRequestDTO
 import edu.example.dev_3_5_cc.entity.Board
+import edu.example.dev_3_5_cc.entity.QBoard.board
 import edu.example.dev_3_5_cc.exception.BoardException
 import edu.example.dev_3_5_cc.repository.BoardRepository
 import edu.example.dev_3_5_cc.repository.MemberRepository
@@ -35,12 +36,12 @@ class BoardService(
     }
 
     fun readBoard(boardId: Long) : BoardResponseDTO {
-        val board = boardRepository.findByIdOrNull(boardId) ?: throw EntityNotFoundException()
+        val board = boardRepository.findByIdOrNull(boardId) ?: throw BoardException.NOT_FOUND.get()
         return BoardResponseDTO(board)
     }
 
     fun updateBoard(boardUpdateDTO: BoardUpdateDTO): BoardResponseDTO {
-        val board = boardRepository.findByIdOrNull(boardUpdateDTO.boardId) ?: throw EntityNotFoundException()
+        val board = boardRepository.findByIdOrNull(boardUpdateDTO.boardId) ?: throw BoardException.NOT_FOUND.get()
 
         with(board){
             title = boardUpdateDTO.title
@@ -52,7 +53,7 @@ class BoardService(
     }
 
     fun delete(boardId: Long){
-        val board = boardRepository.findByIdOrNull(boardId) ?: throw EntityNotFoundException()
+        val board = boardRepository.findByIdOrNull(boardId) ?: throw BoardException.NOT_FOUND.get()
 
         // 권한 체크: 작성자 또는 관리자만 가능
 
