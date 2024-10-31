@@ -14,7 +14,7 @@ data class OrderItem(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private var product: Product? = null,
+    var product: Product? = null,
 
     var quantity: Int? = null,
 

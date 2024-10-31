@@ -2,11 +2,9 @@ package edu.example.dev_3_5_cc.service
 
 import edu.example.dev_3_5_cc.dto.member.MemberRequestDTO
 import edu.example.dev_3_5_cc.dto.order.OrderRequestDTO
+import edu.example.dev_3_5_cc.dto.order.OrderUpdateRequestDTO
 import edu.example.dev_3_5_cc.dto.orderItem.OrderItemRequestDTO
-import edu.example.dev_3_5_cc.entity.Member
-import edu.example.dev_3_5_cc.entity.OrderItem
-import edu.example.dev_3_5_cc.entity.Orders
-import edu.example.dev_3_5_cc.entity.Product
+import edu.example.dev_3_5_cc.entity.*
 import edu.example.dev_3_5_cc.entity.QOrderItem.orderItem
 import edu.example.dev_3_5_cc.entity.QProduct.product
 import edu.example.dev_3_5_cc.log
@@ -20,6 +18,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.jpa.domain.AbstractPersistable_.id
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.TestPropertySource
 
 @SpringBootTest
@@ -156,5 +155,82 @@ class OrderServiceTest {
         assertEquals(createdOrder.phoneNumber, foundOrder.phoneNumber)
     }
 
+    @Test
+    @Order(4)
+    fun testFindOrderByMemberId() {
+        // GIVEN: 테스트를 위한 Order 생성
+        val order = OrderRequestDTO().apply {
+            memberId = member?.memberId
+            email = null
+            name = null
+            address = null
+            phoneNumber = null
+            orderItems = orderItem
+        }
+        val createdOrder = orderService.createOrder(order)
+        val foundOrders = orderService.findOrderByMemberId(order.memberId!!)
+
+        // WHEN: findOrderByMemberId 호출
+        val orders = orderService.findOrderByMemberId(order.memberId!!)
+
+        // THEN: 반환된 주문 목록이 올바른지 확인
+        assertEquals(1, orders.size) // 하나의 주문이 생성되었으므로
+        assertEquals(member?.email, orders[0].email) // 주문의 이메일이 멤버의 이메일과 일치해야 함
+        assertEquals(member?.name, orders[0].name) // 주문의 이름이 멤버의 이름과 일치해야 함
+        assertEquals(member?.address, orders[0].address) // 주문의 주소가 멤버의 주소와 일치해야 함
+        assertEquals(member?.phoneNumber, orders[0].phoneNumber) // 주문의 전화번호가 멤버의 전화번호와 일치해야 함
+    }
+
+    @Test
+    @Order(5)
+    fun testModifyStatus() {
+        // GIVEN: 테스트를 위한 Order 생성
+        val order = OrderRequestDTO().apply {
+            memberId = member?.memberId
+            email = null
+            name = null
+            address = null
+            phoneNumber = null
+            orderItems = orderItem
+        }
+        val createdOrder = orderService.createOrder(order)
+
+        // WHEN: 주문 상태를 SHIPPED로 변경
+        val updatedOrder = OrderUpdateRequestDTO().apply {
+            orderId = createdOrder.orderId
+            orderstatus = OrderStatus.SHIPPED
+        }
+        val modifiedOrderResponse = orderService.modifyStatus(updatedOrder)
+
+        // THEN: 상태가 성공적으로 변경되었는지 확인
+        assertEquals(OrderStatus.SHIPPED, modifiedOrderResponse.status) // 상태가 SHIPPED인지 확인
+        assertEquals(createdOrder.orderId, modifiedOrderResponse.orderId) // ID가 동일한지 확인
+        assertEquals(createdOrder.email, modifiedOrderResponse.email) // 기타 정보가 일치하는지 확인
+        assertEquals(createdOrder.name, modifiedOrderResponse.name)
+        assertEquals(createdOrder.address, modifiedOrderResponse.address)
+        assertEquals(createdOrder.phoneNumber, modifiedOrderResponse.phoneNumber)
+    }
+
+    @Test
+    @Order(6)
+    fun testDelete() {
+        // GIVEN: 테스트를 위한 Order 생성
+        val order = OrderRequestDTO().apply {
+            memberId = member?.memberId
+            email = null
+            name = null
+            address = null
+            phoneNumber = null
+            orderItems = orderItem
+        }
+        val createdOrder = orderService.createOrder(order)
+
+        //WHEN
+        orderService.delete(createdOrder.orderId!!)
+
+        //THEN
+        val deletedOrder = orderRepository.findByIdOrNull(createdOrder.orderId!!)
+        assertEquals(null, deletedOrder)
+    }
 
 }

@@ -2,8 +2,12 @@ package edu.example.dev_3_5_cc.service
 
 import edu.example.dev_3_5_cc.dto.order.OrderRequestDTO
 import edu.example.dev_3_5_cc.dto.order.OrderResponseDTO
+import edu.example.dev_3_5_cc.dto.order.OrderUpdateRequestDTO
 import edu.example.dev_3_5_cc.entity.OrderItem
+import edu.example.dev_3_5_cc.entity.OrderStatus
 import edu.example.dev_3_5_cc.entity.Orders
+import edu.example.dev_3_5_cc.entity.QOrderItem.orderItem
+import edu.example.dev_3_5_cc.entity.QProduct.product
 import edu.example.dev_3_5_cc.exception.MemberException
 import edu.example.dev_3_5_cc.exception.OrderException
 import edu.example.dev_3_5_cc.exception.ProductException
@@ -91,10 +95,41 @@ class OrderService (
     }
 
     //memberID로 주문 List 조회
-
+    fun findOrderByMemberId(memberId: String): List<OrderResponseDTO> {
+        val foundMember = memberRepository?.findByIdOrNull(memberId) ?: throw MemberException.NOT_FOUND.get()
+        val orders: List<Orders?> = orderRepository.findByMember(foundMember) ?: throw OrderException.NOT_FOUND.get()
+        return orders.map { modelMapper.map(it, OrderResponseDTO::class.java) }
+    }
     //주문 상태 수정
+    fun modifyStatus(orderUpdateRequestDTO: OrderUpdateRequestDTO): OrderResponseDTO {
+        val order: Orders = orderRepository.findByIdOrNull(orderUpdateRequestDTO.orderId) ?: throw OrderException.NOT_FOUND.get()
+        order.changeOrderStatus(orderUpdateRequestDTO.orderstatus!!)
+        return modelMapper.map(order, OrderResponseDTO::class.java)
+    }
 
     //주문 삭제
+    fun delete(orderId: Long) {
+        val order: Orders = orderRepository.findByIdOrNull(orderId) ?: throw OrderException.NOT_FOUND.get()
+        log.info("Order ID: {$order.orderId} has ${order.orderItems?.size} items.")
+
+        if(order.orderStatus == OrderStatus.DELIVERED) {
+            throw OrderException.ALREADY_DELIVERED.get()
+        }
+
+        order.orderItems?.forEach { orderItem ->
+        log.info("productId : ${orderItem.product?.productId} quantity : ${orderItem.quantity}")
+        val product = orderItem.product
+        product?.changeStock((product?.stock ?: 0) + orderItem.quantity!!)
+
+        productRepository.save(product!!)
+
+        }
+
+        order.orderItems?.forEach { orderItem ->
+            orderItemRepository.delete(orderItem)
+        }
+        orderRepository.delete(order)
+    }
 
 
 
