@@ -3,8 +3,10 @@ package edu.example.dev_3_5_cc.entity
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
+@EntityListeners(AuditingEntityListener::class)
 @Entity
 data class Board(
     @Id
@@ -19,22 +21,34 @@ data class Board(
     var description : String? = null,
 
     @OneToMany(mappedBy = "board", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    private var images: MutableList<BoardImage?>? = ArrayList(),
+    var images: MutableList<BoardImage> = mutableListOf(),
 
     @OneToMany(
         mappedBy = "board",
         fetch = FetchType.LAZY,
         cascade = [CascadeType.ALL]
     ) @OrderBy("createdAt ASC") // 댓글을 생성일 순으로 조회
-    private var replies: MutableList<Reply?>? = ArrayList(),
+    var replies: MutableList<Reply?>? = ArrayList(),
 
     @Enumerated(EnumType.STRING)
     var category : Category? = null,
 
     @CreatedDate
-    val createdAt: LocalDateTime? = null,
+    var createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
-    val updatedAt: LocalDateTime? = null
+    var updatedAt: LocalDateTime? = null
 
-)
+){
+    // 이미지 추가
+    fun addImage(image: BoardImage) {
+        images.add(image)
+        image.board = this // 양방향 연관관계 설정
+    }
+
+    // 이미지 삭제
+    fun removeImage(image: BoardImage) {
+        images.remove(image)
+        image.board = null // 양방향 연관관계 해제
+    }
+}

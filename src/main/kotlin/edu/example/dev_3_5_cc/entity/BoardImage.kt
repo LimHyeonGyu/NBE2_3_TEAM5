@@ -1,7 +1,9 @@
 package edu.example.dev_3_5_cc.entity
 
 import jakarta.persistence.*
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
+@EntityListeners(AuditingEntityListener::class)
 @Entity
 data class BoardImage(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

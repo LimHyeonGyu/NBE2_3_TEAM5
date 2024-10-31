@@ -1,6 +1,8 @@
 package edu.example.dev_3_5_cc.repository
 
 import edu.example.dev_3_5_cc.entity.Member
+
+
 import edu.example.dev_3_5_cc.entity.MemberImage
 import edu.example.dev_3_5_cc.log
 import org.junit.jupiter.api.*
@@ -21,6 +23,7 @@ class MemberRepositoryTest {
 
     @Autowired
     lateinit var memberRepository: MemberRepository
+
 
     @BeforeEach
     fun init() {
