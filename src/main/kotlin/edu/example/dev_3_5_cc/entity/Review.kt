@@ -3,13 +3,15 @@ package edu.example.dev_3_5_cc.entity
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
+@EntityListeners(AuditingEntityListener::class)
 @Entity
 data class Review(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var reviewId: Long? = null,
+    var reviewId: Long? = 0L,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

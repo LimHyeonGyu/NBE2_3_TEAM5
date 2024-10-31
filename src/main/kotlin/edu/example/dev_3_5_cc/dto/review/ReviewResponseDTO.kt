@@ -5,11 +5,8 @@ import jakarta.validation.constraints.NotBlank
 import java.time.LocalDateTime
 
 data class ReviewResponseDTO(
-    @NotBlank
     val reviewId: Long? = null,
-    @NotBlank
     val memberId: String? = null,
-    @NotBlank
     val productId: Long? = null,
 
     val content: String? = null,

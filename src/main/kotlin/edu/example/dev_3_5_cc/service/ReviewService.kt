@@ -14,6 +14,7 @@ import edu.example.dev_3_5_cc.repository.ProductRepository
 import edu.example.dev_3_5_cc.repository.ReviewRepository
 import jakarta.persistence.EntityNotFoundException
 import org.modelmapper.ModelMapper
+import org.modelmapper.PropertyMap
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
@@ -29,10 +30,21 @@ class ReviewService(
     private val memberRepository: MemberRepository,
     private val modelMapper: ModelMapper,
 ) {
-    fun create(reviewRequestDTO: ReviewRequestDTO):ReviewResponseDTO{
-        val review = modelMapper.map(reviewRequestDTO, Review::class.java)
-        val saveReview = reviewRepository.save(review)
-        return ReviewResponseDTO(saveReview)
+    fun createReview(reviewRequestDTO: ReviewRequestDTO): ReviewResponseDTO {
+        val member = memberRepository.findById(reviewRequestDTO.memberId!!)
+            .orElseThrow { EntityNotFoundException("Member not found") }
+        val product = productRepository.findById(reviewRequestDTO.productId!!)
+            .orElseThrow { EntityNotFoundException("Product not found") }
+
+        val review = Review(
+            content = reviewRequestDTO.content,
+            star = reviewRequestDTO.star ?: 0,
+            member = member,
+            product = product
+        )
+
+        val savedReview = reviewRepository.save(review)
+        return ReviewResponseDTO(savedReview)
     }
 
     fun read(reviewId: Long): ReviewResponseDTO {
@@ -48,7 +60,8 @@ class ReviewService(
             content = reviewUpdateDTO.content
             star= reviewUpdateDTO.star
         }
-        return ReviewResponseDTO(review)
+        val updatedReview = reviewRepository.save(review)
+        return ReviewResponseDTO(updatedReview)
     }
 
     fun delete(reviewId: Long) {
