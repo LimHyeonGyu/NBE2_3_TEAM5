@@ -9,11 +9,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.scheduling.annotation.EnableScheduling
 
 @SpringBootApplication
-@EnableScheduling
 @EnableJpaAuditing
 class Dev35CcApplication
 
-inline val <reified T> T.log : Logger
+inline val <reified T> T.log: Logger
     get() = LogManager.getLogger()
 
 fun main(args: Array<String>) {
