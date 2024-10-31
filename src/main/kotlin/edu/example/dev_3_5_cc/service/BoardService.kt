@@ -8,6 +8,7 @@ import edu.example.dev_3_5_cc.dto.product.PageRequestDTO
 import edu.example.dev_3_5_cc.entity.Board
 import edu.example.dev_3_5_cc.entity.QBoard.board
 import edu.example.dev_3_5_cc.exception.BoardException
+import edu.example.dev_3_5_cc.exception.MemberException
 import edu.example.dev_3_5_cc.repository.BoardRepository
 import edu.example.dev_3_5_cc.repository.MemberRepository
 import jakarta.persistence.EntityNotFoundException
@@ -82,8 +83,7 @@ class BoardService(
 
         var boards : List<Board> = boardRepository.findAllByMember(memberId)
         if (boards.isEmpty()) {
-            // MemberException 아직 없어서 주석처리 했습니다
-//            throw MemberException.NOT_FOUND.get()
+            throw BoardException.NOT_FOUND.get()
         }
         return boards.map { BoardListDTO(it) }
 

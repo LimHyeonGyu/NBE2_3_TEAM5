@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.Query
 
 interface ReplyRepository : JpaRepository<Reply, Long> {
     @Query("SELECT r FROM Reply r WHERE r.member.memberId = :memberId")
-    fun findAllByMember(memberId: String): List<Reply?>?
+    fun findAllByMember(memberId: String): List<Reply>
 }
