@@ -2,13 +2,15 @@ package edu.example.dev_3_5_cc.api_controller
 
 import edu.example.dev_3_5_cc.dto.order.OrderRequestDTO
 import edu.example.dev_3_5_cc.dto.order.OrderResponseDTO
+import edu.example.dev_3_5_cc.dto.review.ReviewRequestDTO
+import edu.example.dev_3_5_cc.dto.review.ReviewResponseDTO
+import edu.example.dev_3_5_cc.dto.review.ReviewUpdateDTO
 import edu.example.dev_3_5_cc.exception.OrderException
-import edu.example.dev_3_5_cc.service.BoardService
-import edu.example.dev_3_5_cc.service.MemberService
-import edu.example.dev_3_5_cc.service.OrderService
-import edu.example.dev_3_5_cc.service.ProductService
+import edu.example.dev_3_5_cc.service.*
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+
 
 @RestController
 @RequestMapping("/cc/mypage")
@@ -16,7 +18,8 @@ class MypageController (
     val memberService: MemberService,
     val productService: ProductService,
     val boardService: BoardService,
-    val orderService: OrderService
+    val orderService: OrderService,
+    val reviewService: ReviewService
 ) {
     //-----------------------------------------회원 정보 수정-------------------------------------------------
 
@@ -57,6 +60,22 @@ class MypageController (
 
     //---------------------------------------------리뷰------------------------------------------------------
 
+    @PostMapping("/review")
+    fun createReview(@RequestBody reviewRequestDTO: ReviewRequestDTO): ResponseEntity<ReviewResponseDTO>? {
+        return ResponseEntity.ok(reviewService.createReview(reviewRequestDTO))
+    }
 
+    @PutMapping("/review/{reviewId}")
+    fun updateReview(
+        @PathVariable reviewId: Long,
+        @Validated @RequestBody reviewUpdateDTO: ReviewUpdateDTO
+    ): ResponseEntity<ReviewResponseDTO>{
+        return ResponseEntity.ok(reviewService.update(reviewUpdateDTO))
+    }
 
+    @DeleteMapping("/review/{reviewId}")
+    fun deleteReview(@PathVariable("reviewId") reviewId: Long): ResponseEntity<Map<String, String>> {
+        reviewService.delete(reviewId)
+        return ResponseEntity.ok(mapOf("message" to "Review deleted"))
+    }
 }
