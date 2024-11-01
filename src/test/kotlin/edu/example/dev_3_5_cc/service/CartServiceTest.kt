@@ -1,8 +1,12 @@
 package edu.example.dev_3_5_cc.service
 
 import edu.example.dev_3_5_cc.dto.cart.CartRequestDTO
-import edu.example.dev_3_5_cc.dto.cartItem.*
-import edu.example.dev_3_5_cc.entity.*
+import edu.example.dev_3_5_cc.dto.cartItem.CartItemRequestDTO
+import edu.example.dev_3_5_cc.dto.cartItem.CartItemUpdateDTO
+import edu.example.dev_3_5_cc.entity.Cart
+import edu.example.dev_3_5_cc.entity.CartItem
+import edu.example.dev_3_5_cc.entity.Member
+import edu.example.dev_3_5_cc.entity.Product
 import edu.example.dev_3_5_cc.repository.*
 import edu.example.dev_3_5_cc.util.SecurityUtil
 import org.junit.jupiter.api.*
@@ -49,22 +53,18 @@ class CartServiceTest {
     @BeforeEach
     fun setUp() {
         MockitoAnnotations.openMocks(this) // 모킹 초기화
-
         cartRepository.deleteAll()
         cartItemRepository.deleteAll()
         productRepository.deleteAll()
         memberRepository.deleteAll()
-
         member = Member(memberId = "user", email = "test@example.com", phoneNumber = "1234567890", name = "Test User", password = "password", sex = "M", address = "Test Address")
         memberRepository.save(member).run {
             assertNotNull(memberId)
         }
-
         product = Product(pName = "Test Product", price = 100L, stock = 10)
         productRepository.save(product).run {
             assertNotNull(productId)
         }
-
         `when`(securityUtil.currentUser).thenReturn(member) // Mock 객체가 현재 사용자를 반환하도록 설정
     }
 
@@ -160,4 +160,15 @@ class CartServiceTest {
         cartService.delete(cartItem.cartItemId!!)
         verify(cartItemRepository, times(1)).delete(cartItem)
     }
+
+    // 예외 테스트 추가
+    @Test
+    @Transactional
+    @Order(7)
+    fun testAddNullItemThrowsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            cartService.addItem(null)
+        }
+    }
 }
+

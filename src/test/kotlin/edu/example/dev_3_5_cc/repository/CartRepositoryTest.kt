@@ -38,10 +38,8 @@ class CartRepositoryTest {
         cartRepository.deleteAll()
         productRepository.deleteAll()
         memberRepository.deleteAll()
-
         member = Member(memberId = "testMember")
         memberRepository.save(member)
-
         product1 = Product(pName = "Product1", price = 100L)
         product2 = Product(pName = "Product2", price = 200L)
         productRepository.saveAll(listOf(product1, product2))
@@ -54,7 +52,6 @@ class CartRepositoryTest {
         cartRepository.save(cart).run {
             assertNotNull(cart.cartId)
         }
-
         val foundCart = member.memberId?.let { cartRepository.findByMemberId(it) }
         if (foundCart != null) {
             assertTrue(foundCart.isPresent)
@@ -69,11 +66,9 @@ class CartRepositoryTest {
     fun `test totalPrice`() {
         val cart = Cart(member = member)
         cartRepository.save(cart)
-
         val cartItem1 = CartItem(product = product1, quantity = 2, cart = cart)
         val cartItem2 = CartItem(product = product2, quantity = 1, cart = cart)
         cartItemRepository.saveAll(listOf(cartItem1, cartItem2))
-
         val totalPrice = cartRepository.totalPrice(cart.cartId!!)
         assertEquals(400L, totalPrice)
     }
@@ -83,11 +78,18 @@ class CartRepositoryTest {
     fun `test delete cart`() {
         val cart = Cart(member = member)
         cartRepository.save(cart)
-
         val cartId = cart.cartId!!
         cartRepository.deleteById(cartId)
-
         val foundCart = cartRepository.findByIdOrNull(cartId)
         assertNull(foundCart, "Cart should be deleted")
+    }
+
+    // 예외 테스트 추가
+    @Test
+    @Order(4)
+    fun `test add null cart throws exception`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            cartRepository.save(null)
+        }
     }
 }
