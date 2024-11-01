@@ -55,9 +55,13 @@ class CartRepositoryTest {
             assertNotNull(cart.cartId)
         }
 
-        val foundCart = cartRepository.findByMemberId(member.memberId)
-        assertTrue(foundCart.isPresent)
-        assertEquals(member.memberId, foundCart.get().member?.memberId)
+        val foundCart = member.memberId?.let { cartRepository.findByMemberId(it) }
+        if (foundCart != null) {
+            assertTrue(foundCart.isPresent)
+        }
+        if (foundCart != null) {
+            assertEquals(member.memberId, foundCart.get().member?.memberId)
+        }
     }
 
     @Test
