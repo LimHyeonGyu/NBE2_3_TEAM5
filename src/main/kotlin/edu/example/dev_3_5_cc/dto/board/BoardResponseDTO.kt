@@ -15,7 +15,7 @@ data class BoardResponseDTO (
      var createdAt: LocalDateTime? = null,
      var updatedAt: LocalDateTime?= null,
 //     var replies: List<ReplyResponseDTO>? = null   //reply 안만들어서 보류
-){
+) {
     constructor(board: Board) :
             this(
                 boardId = board.boardId,

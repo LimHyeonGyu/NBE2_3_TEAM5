@@ -11,6 +11,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.TestPropertySource
 import org.springframework.transaction.annotation.Transactional
@@ -47,8 +48,8 @@ class MemberRepositoryTest {
     }
 
     @Test
-    @Order(1)
     @Transactional
+    @Order(1)
     fun testInsert() {
         // GIVEN -> 테스트를 위한 Member 객체 생성
         val member = Member().apply {
@@ -67,11 +68,14 @@ class MemberRepositoryTest {
         memberRepository.save(member).run {
             // THEN -> 저장 후 ID가 null이 아닌지 확인
             assertNotNull(this)
-            log.info("", this)
+            assertEquals(image, MemberImage("default_avatar.png"))
+            assertEquals(image?.filename, "default_avatar.png")
+            log.info("등록된 회원 정보: $this")
         }
     }
 
     @Test
+    @Transactional
     @Order(2)
     fun testGetMember() {
         // GIVEN -> 조회할 memberId 설정
@@ -82,25 +86,27 @@ class MemberRepositoryTest {
         member.run {
             // THEN -> 조회된 Member의 ID가 기대한 값과 일치하는지 확인
             assertEquals(memberId, this.memberId)
-            log.info(this)
+            assertEquals(image, MemberImage("default_avatar.png"))
+            log.info("조회된 회원 정보: $this")
         }
     }
 
     @Test
+    @Transactional
     @Order(4)
     fun testFindByIdFailure() {
         // GIVEN -> 존재하지 않는 memberId 설정
         val memberId = "userNoExist"
 
         // WHEN & THEN -> 조회 실패 시 예외가 발생하는지 확인
-        assertThrows<NoSuchElementException> {
+        assertThrows<MemberTaskException> {
             memberRepository.findByIdOrNull(memberId) ?: throw throw MemberException.NOT_FOUND.get()
         }
     }
 
     @Test
-    @Order(5)
     @Transactional
+    @Order(5)
     fun testUpdateMember() {
         // GIVEN -> 업데이트할 memberId 설정 및 해당 Member 조회
         val memberId = "user10"
@@ -118,6 +124,7 @@ class MemberRepositoryTest {
         updatedMember.run {
             assertEquals("updated_user10@user10.com", email)
             assertEquals("updated_user10", address)
+            log.info("수정된 회원 정보: $this")
         }
     }
 
@@ -132,12 +139,13 @@ class MemberRepositoryTest {
         memberRepository.deleteById(memberId)
 
         // THEN -> 삭제된 Member를 조회할 때 예외가 발생하는지 확인
-        assertThrows<NoSuchElementException> {
+        assertThrows<MemberTaskException> {
             memberRepository.findByIdOrNull(memberId) ?: throw MemberException.NOT_FOUND.get()
         }
     }
 
     @Test
+    @Transactional
     @Order(7)
     fun testFindAll() {
         // WHEN -> memberRepository에서 모든 멤버를 조회
@@ -148,7 +156,6 @@ class MemberRepositoryTest {
             assertNotNull(this)
             assertEquals("user1", this[0]?.memberId, "첫 번째 memberID가 예상값과 다름")
         }
-
         memberList.forEach { println(it) }
     }
 
