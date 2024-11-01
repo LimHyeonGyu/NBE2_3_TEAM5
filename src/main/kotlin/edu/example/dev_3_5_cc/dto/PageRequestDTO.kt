@@ -1,4 +1,5 @@
 package edu.example.dev_3_5_cc.dto
+
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.springframework.data.domain.PageRequest
@@ -20,3 +21,4 @@ data class PageRequestDTO(
         sort
     )
 }
+

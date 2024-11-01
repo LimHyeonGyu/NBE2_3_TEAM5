@@ -24,7 +24,7 @@ data class Orders(
     var orderItems: MutableList<OrderItem>? = mutableListOf(),
 
     @Enumerated(EnumType.STRING)
-//    @ColumnDefault("APPROVED") -> 📌이 어노테이션과 "= null"을 함께쓰면 에러없이 테이블 생성 안됨
+//    @ColumnDefault("APPROVED") -> 📌이 어노테이션과 "= null"을 함께쓰면 에러없이;; 테이블 생성 안됨
     var orderStatus: OrderStatus? = OrderStatus.APPROVED,
 
     @CreationTimestamp
@@ -32,8 +32,11 @@ data class Orders(
 
     @UpdateTimestamp
     var updatedAt: LocalDateTime? = null
-)
-{
+) {
+    override fun toString(): String {
+        return "Orders(orderId=$orderId, email='$email', name='$name', address='$address', phoneNumber='$phoneNumber')"
+    }
+
     fun changeOrderStatus(orderStatus: OrderStatus) {
         this.orderStatus = orderStatus
     }

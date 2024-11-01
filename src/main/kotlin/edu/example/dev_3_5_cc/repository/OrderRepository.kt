@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface OrderRepository : JpaRepository<Orders, Long> {
 
-//    fun findByMember(member: Member?): List<Orders?>?
+    fun findByMember(member: Member?): List<Orders?>?
 
 }
