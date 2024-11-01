@@ -4,7 +4,10 @@ import edu.example.dev_3_5_cc.dto.reply.ReplyListDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyRequestDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyResponseDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyUpdateDTO
+import edu.example.dev_3_5_cc.entity.QReply.reply
 import edu.example.dev_3_5_cc.entity.Reply
+import edu.example.dev_3_5_cc.exception.BoardException
+import edu.example.dev_3_5_cc.exception.MemberException
 import edu.example.dev_3_5_cc.exception.ReplyException
 import edu.example.dev_3_5_cc.repository.BoardRepository
 import edu.example.dev_3_5_cc.repository.MemberRepository
@@ -28,31 +31,12 @@ class ReplyService(
 ) {
 
     fun createReply(replyRequestDTO: ReplyRequestDTO) : ReplyResponseDTO{
-//        val member = memberRepository.findByIdOrNull(replyRequestDTO.memberId) ?: throw MemberException.NOT_FOUND.get()
-//        val board = boardRepository.findByIdOrNull(replyRequestDTO.boardId) ?: throw BoardException.NOT_FOUND.get()
-//
-//        modelMapper.typeMap(ReplyRequestDTO::class.java, Reply::class.java)
-//            .addMappings { mapper: ConfigurableConditionExpression<ReplyRequestDTO?, Reply?> ->
-//                mapper.skip<Long>(Reply::replyId)
-//            }
-//
-//        val savedReply = replyRepository.save(reply)
-//        return ReplyResponseDTO(savedReply)
+        val member = memberRepository.findByIdOrNull(replyRequestDTO.memberId) ?: throw MemberException.NOT_FOUND.get()
+        val board = boardRepository.findByIdOrNull(replyRequestDTO.boardId) ?: throw BoardException.NOT_FOUND.get()
 
-        // ModelMapper 설정: replyId 매핑을 무시하도록 설정
-        modelMapper.addMappings(object : PropertyMap<ReplyRequestDTO, Reply>() {
-            override fun configure() {
-                skip(destination.replyId)  // replyId 매핑을 건너뜁니다.
-            }
-        })
+        val reply = replyRequestDTO.toEntity(member, board)
 
-        // DTO를 Reply 엔티티로 매핑
-        val reply = modelMapper.map(replyRequestDTO, Reply::class.java)
-
-        // 엔티티 저장
         val savedReply = replyRepository.save(reply)
-
-        // 저장된 엔티티를 ResponseDTO로 변환하여 반환
         return ReplyResponseDTO(savedReply)
     }
 
