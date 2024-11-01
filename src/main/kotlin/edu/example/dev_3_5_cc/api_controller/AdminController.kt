@@ -2,7 +2,11 @@ package edu.example.dev_3_5_cc.api_controller
 
 import edu.example.dev_3_5_cc.dto.order.OrderResponseDTO
 import edu.example.dev_3_5_cc.dto.order.OrderUpdateRequestDTO
+import edu.example.dev_3_5_cc.dto.product.ProductRequestDTO
+import edu.example.dev_3_5_cc.dto.product.ProductResponseDTO
+import edu.example.dev_3_5_cc.dto.product.ProductUpdateDTO
 import edu.example.dev_3_5_cc.exception.OrderException
+import edu.example.dev_3_5_cc.exception.ProductException
 import edu.example.dev_3_5_cc.log
 import edu.example.dev_3_5_cc.service.BoardService
 import edu.example.dev_3_5_cc.service.MemberService
@@ -24,7 +28,29 @@ class AdminController (
 
 
     //--------------------------------------------상품 관리------------------------------------------------------
+    @PostMapping("/product")
+    fun createProduct(
+        @RequestBody productRequestDTO: ProductRequestDTO
+    ): ResponseEntity<ProductResponseDTO> {
+        return ResponseEntity.ok(productService.create(productRequestDTO))
+    }
 
+    @PutMapping("/product/{productId}")
+    fun updateProduct(
+        @PathVariable productId: Long,
+        @RequestBody productUpdateDTO: ProductUpdateDTO
+    ): ResponseEntity<ProductResponseDTO> {
+        if (productId != productUpdateDTO.productId) {
+            throw ProductException.NOT_FOUND.get()
+        }
+        return ResponseEntity.ok(productService.update(productUpdateDTO))
+    }
+
+    @DeleteMapping("/product/{productId}")
+    fun deleteProduct(@PathVariable productId: Long): ResponseEntity<Map<String, String>> {
+        productService.delete(productId)
+        return ResponseEntity.ok(mapOf("message" to "Product deleted"))
+    }
 
     //---------------------------------------------장바구니------------------------------------------------------
 

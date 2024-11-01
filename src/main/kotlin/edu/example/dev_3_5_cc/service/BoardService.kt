@@ -1,5 +1,6 @@
 package edu.example.dev_3_5_cc.service
 
+
 import edu.example.dev_3_5_cc.dto.board.BoardListDTO
 import edu.example.dev_3_5_cc.dto.board.BoardRequestDTO
 import edu.example.dev_3_5_cc.dto.board.BoardResponseDTO
