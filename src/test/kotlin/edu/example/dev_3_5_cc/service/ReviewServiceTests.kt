@@ -9,13 +9,11 @@ import edu.example.dev_3_5_cc.exception.ReviewException
 import edu.example.dev_3_5_cc.exception.ReviewTaskException
 import edu.example.dev_3_5_cc.repository.MemberRepository
 import edu.example.dev_3_5_cc.repository.ProductRepository
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Commit
 import org.springframework.test.annotation.Rollback
 import org.springframework.test.context.TestPropertySource
@@ -23,6 +21,7 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @TestPropertySource(locations = ["classpath:application-test.properties"])
 class ReviewServiceTests {
     @Autowired
@@ -155,8 +154,8 @@ class ReviewServiceTests {
         val member = Member(memberId = "testMember", name = "Test Member")
         memberRepository.save(member)
 
-        val product = Product(pName = "Test Product", price = 1000L)
-        productRepository.save(product)
+        val product = productRepository.findByIdOrNull(1L)
+            ?: throw NoSuchElementException()
 
         // memberId와 productId가 다를 때만 리뷰 생성
         (1..100).forEach { index ->
@@ -190,23 +189,23 @@ class ReviewServiceTests {
     }
 
 
-//    @Test
-//    @Order(7)
-//    fun testGetListByProductId() {
-//        val product = productRepository.findById(1L).orElseGet {
-//            productRepository.save(Product(pName = "Test Product", price = 1000L))
-//        }
-//
-//        val pageRequestDTO = PageRequestDTO(page = 1, size = 100)  // Size를 100으로 설정해 100개의 리뷰가 한 번에 조회되도록 설정
-//
-//        val productId = product.productId!!
-//
-//        val reviewListPage = reviewService.getListByProductId(productId, pageRequestDTO)
-//
-//        // 100개의 리뷰가 조회되는지 확인
-//        assertEquals(100, reviewListPage.totalElements)
-//        assertTrue(reviewListPage.content.all { it.productId == productId })
-//    }
+    @Test
+    @Order(7)
+    fun testGetListByProductId() {
+        val product = productRepository.findById(1L).orElseGet {
+            productRepository.save(Product(pName = "Test Product", price = 1000L))
+        }
+
+        val pageRequestDTO = PageRequestDTO(page = 1, size = 100)  // Size를 100으로 설정해 100개의 리뷰가 한 번에 조회되도록 설정
+
+        val productId = product.productId!!
+
+        val reviewListPage = reviewService.getListByProductId(productId, pageRequestDTO)
+
+        // 100개의 리뷰가 조회되는지 확인
+        assertEquals(101, reviewListPage.totalElements)
+        assertTrue(reviewListPage.content.all { it.productId == productId })
+    }
 
 
 }
