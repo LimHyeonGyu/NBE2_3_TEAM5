@@ -19,9 +19,4 @@ data class CartItem(
     var product: Product? = null,
 
     var quantity: Int = 0
-) {
-    fun changeQuantity(quantity: Int) {
-        this.quantity = quantity
-    }
-
-}
+)

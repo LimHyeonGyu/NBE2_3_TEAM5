@@ -6,7 +6,9 @@ import edu.example.dev_3_5_cc.dto.cartItem.CartItemUpdateDTO
 import edu.example.dev_3_5_cc.dto.cartItem.CartItemResponseDTO
 import edu.example.dev_3_5_cc.entity.Cart
 import edu.example.dev_3_5_cc.entity.CartItem
+import edu.example.dev_3_5_cc.entity.QCartItem.cartItem
 import edu.example.dev_3_5_cc.exception.CartException
+import edu.example.dev_3_5_cc.repository.CartItemRepository
 import edu.example.dev_3_5_cc.repository.CartRepository
 import edu.example.dev_3_5_cc.repository.MemberRepository
 import edu.example.dev_3_5_cc.repository.ProductRepository
@@ -18,12 +20,12 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class CartService(
     private val cartRepository: CartRepository,
+    private val cartItemRepository: CartItemRepository,
     private val memberRepository: MemberRepository,
     private val productRepository: ProductRepository
 ) {
     private val log = LoggerFactory.getLogger(CartService::class.java)
 
-    // Cart 등록
     fun create(cartRequestDTO: CartRequestDTO): CartResponseDTO {
         val memberId = cartRequestDTO.memberId ?: throw CartException.NOT_FOUND.get() // memberId null 체크
         val member = memberRepository.findById(memberId)
@@ -41,7 +43,7 @@ class CartService(
 
                 val cartItemEntity = CartItem(cart = savedCart, product = product, quantity = cartItem.quantity)
                 savedCart.cartItems.add(cartItemEntity)
-                cartItemEntity
+                CartItemResponseDTO(cartItemEntity)
             }
 
             // Cart ID가 null일 경우 예외 처리
@@ -49,7 +51,7 @@ class CartService(
 
             CartResponseDTO(
                 cartId = savedCart.cartId,
-                memberId = member.memberId,  // memberId는 null이 아님
+                memberId = member.memberId,
                 cartItems = savedCartItems,
                 totalPrice = totalPrice
             )
@@ -69,31 +71,30 @@ class CartService(
 
         return CartResponseDTO(
             cartId = foundCart.cartId,
-            memberId = foundCart.member?.memberId ?: throw CartException.NOT_FOUND.get(), // null 체크 추가
-            cartItems = foundCart.cartItems,
+            memberId = foundCart.member?.memberId ?: throw CartException.NOT_FOUND.get(),
+            cartItems = foundCart.cartItems.map { CartItemResponseDTO(it) },
             totalPrice = totalPrice
         )
     }
 
+
     // 전체 Cart 조회
     fun readAll(): List<CartResponseDTO> =
         cartRepository.findAll().map { cart ->
-            // Cart ID가 null일 경우 예외 처리
-            val totalPrice = cartRepository.totalPrice(cart.cartId!!) ?: 0L
+            val totalPrices = cartRepository.totalPrice(cart.cartId!!)?:0L
             CartResponseDTO(
                 cartId = cart.cartId,
                 memberId = cart.member?.memberId, // memberId는 nullable
-                cartItems = cart.cartItems,
-                totalPrice = totalPrice
+                cartItems = cart.cartItems.map{CartItemResponseDTO(it)},
+                totalPrice = totalPrices
             )
         }
 
     // Cart 수정 - CartItem 의 수량 변경
     fun update(cartItemUpdateDTO: CartItemUpdateDTO): CartItemResponseDTO? {
         val cartItemId = cartItemUpdateDTO.cartItemId ?: throw IllegalArgumentException("CartItem ID cannot be null") // cartItemId null 체크
-        val cartItem = cartRepository.findById(cartItemId)
+        val cartItem = cartItemRepository.findById(cartItemId)
             .orElseThrow { RuntimeException("Cart item not found") }
-            .cartItems.first()
 
         return try {
             cartItem.apply {
@@ -101,7 +102,7 @@ class CartService(
                     cartRepository.deleteById(cartItem.cartItemId!!) // cartItemId null 체크
                     return null
                 }
-                changeQuantity(cartItemUpdateDTO.quantity)
+                this.quantity = cartItemUpdateDTO.quantity
             }
             CartItemResponseDTO(cartItem)
         } catch (e: Exception) {
@@ -110,17 +111,17 @@ class CartService(
         }
     }
 
-    // Cart 삭제 - Order 생성시 필요
-    fun deleteCart(cartId: Long) {
-        cartRepository.findById(cartId).ifPresentOrElse(
-            { cartRepository.delete(it) },
+    // CartItem 삭제
+    fun delete(cartItemId: Long) {
+        cartItemRepository.findById(cartItemId).ifPresentOrElse(
+            { cartItemRepository.delete(it) },
             { throw CartException.NOT_FOUND.get() }
         )
     }
 
-    // CartItem 삭제
-    fun delete(cartItemId: Long) {
-        cartRepository.findById(cartItemId).ifPresentOrElse(
+    // Cart 삭제 - Order 생성시 필요
+    fun deleteCart(cartId: Long) {
+        cartRepository.findById(cartId).ifPresentOrElse(
             { cartRepository.delete(it) },
             { throw CartException.NOT_FOUND.get() }
         )

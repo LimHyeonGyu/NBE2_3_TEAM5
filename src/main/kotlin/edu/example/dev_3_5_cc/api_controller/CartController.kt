@@ -45,7 +45,7 @@ class CartController(
 
     // CartItem 삭제 (단일 상품 지우기)
     @DeleteMapping("/cartItem/{cartItemId}")
-    fun delete(@PathVariable("cartItemId") cartItemId: Long): ResponseEntity<Map<String, String>> {
+    fun deleteCartItem(@PathVariable("cartItemId") cartItemId: Long): ResponseEntity<Map<String, String>> {
         cartService.delete(cartItemId)
         return ResponseEntity.ok(mapOf("result" to "success"))
     }
