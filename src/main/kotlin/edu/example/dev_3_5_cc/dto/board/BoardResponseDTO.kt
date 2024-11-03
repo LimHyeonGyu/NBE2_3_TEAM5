@@ -1,5 +1,6 @@
 package edu.example.dev_3_5_cc.dto.board
 
+import edu.example.dev_3_5_cc.dto.reply.ReplyResponseDTO
 import edu.example.dev_3_5_cc.entity.Board
 import edu.example.dev_3_5_cc.entity.Category
 import java.time.LocalDateTime
@@ -14,8 +15,8 @@ data class BoardResponseDTO (
      var imageFilenames: List<String?>? = null, // 이미지 파일 이름들을 담을 리스트 추가
      var createdAt: LocalDateTime? = null,
      var updatedAt: LocalDateTime?= null,
-//     var replies: List<ReplyResponseDTO>? = null   //reply 안만들어서 보류
-) {
+     var replies: MutableList<ReplyResponseDTO>? = null
+){
     constructor(board: Board) :
             this(
                 boardId = board.boardId,
@@ -23,9 +24,10 @@ data class BoardResponseDTO (
                 description = board.description,
                 category = board.category ?: Category.GENERAL,
                 memberId = board.member?.memberId,
-                thumbnail = board.images.firstOrNull()?.filename,  // Assuming the first image as thumbnail
+                thumbnail = board.member?.image?.filename?.let { "s_$it" },  // 이미지가 있을 때만 s_붙여서 명시
                 imageFilenames = board.images.map { it.filename }, // Map images to filenames
                 createdAt = board.createdAt,
-                updatedAt = board.updatedAt
+                updatedAt = board.updatedAt,
+                replies = board.replies?.mapNotNull { it?.let{ReplyResponseDTO(it)} }?.toMutableList()
             )
 }

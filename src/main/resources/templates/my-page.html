@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/main.js}" defer></script>
+    <script th:src="@{/js/navbar.js}" defer></script>
+    <script type="module" th:src="@{/js/mypage.js}" defer></script>
+    <script src="https://kit.fontawesome.com/1ad5d86581.js" crossorigin="anonymous"></script>
+    <title>My Page</title>
+</head>
+<body>
+<div class="background"></div>
+
+<!-- 네비게이션 바 -->
+<header>
+    <div th:replace="~{navbar :: navbar}"></div>
+</header>
+<main>
+    <div class="content_1">
+        <div class="content_url">
+            Home > MyPage
+        </div><hr>
+        <div id="cart-container">
+            <div id="my-page-div">
+                <div id="my-page-menu">
+                    <div class="mp-menu-btn">주문목록</div>
+                    <div class="mp-menu-btn">작성글 조회</div>
+                    <div class="mp-menu-btn">개인 정보 확인/수정</div>
+                </div>
+                <div id="my-page-content">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+<!--<footer>-->
+<!--    <div>-->
+<!--        <h1>footer 영역 입니다!</h1>-->
+<!--    </div>-->
+<!--</footer>-->
+</body>
+</html>
