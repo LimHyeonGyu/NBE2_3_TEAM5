@@ -28,24 +28,24 @@ class MemberRepositoryTest {
     lateinit var memberRepository: MemberRepository
 
 
-    @BeforeEach
-    fun init() {
-        for (i in 1L..100L) {
-            val member = Member().apply {
-                memberId = "user$i"
-                email = "user$i@user$i.com"
-                phoneNumber = "010-1111-2222"
-                name = "user$i"
-                password = "user$i"
-                sex = if (i % 2 == 0L) "M" else "F"
-                address = "user$i"
-                role = if (i % 10 == 0L) "ADMIN" else "USER"
-                image = image ?: MemberImage("default_avatar.png")
-            }
-
-            memberRepository.save(member)
-        }
-    }
+//    @BeforeEach
+//    fun init() {
+//        for (i in 1L..100L) {
+//            val member = Member().apply {
+//                memberId = "user$i"
+//                email = "user$i@user$i.com"
+//                phoneNumber = "010-1111-2222"
+//                name = "user$i"
+//                password = "user$i"
+//                sex = if (i % 2 == 0L) "M" else "F"
+//                address = "user$i"
+//                role = if (i % 10 == 0L) "ADMIN" else "USER"
+//                image = image ?: MemberImage("default_avatar.png")
+//            }
+//
+//            memberRepository.save(member)
+//        }
+//    }
 
     @Test
     @Transactional
@@ -93,7 +93,7 @@ class MemberRepositoryTest {
 
     @Test
     @Transactional
-    @Order(4)
+    @Order(3)
     fun testFindByIdFailure() {
         // GIVEN -> 존재하지 않는 memberId 설정
         val memberId = "userNoExist"
@@ -106,7 +106,7 @@ class MemberRepositoryTest {
 
     @Test
     @Transactional
-    @Order(5)
+    @Order(4)
     fun testUpdateMember() {
         // GIVEN -> 업데이트할 memberId 설정 및 해당 Member 조회
         val memberId = "user10"
@@ -130,7 +130,7 @@ class MemberRepositoryTest {
 
     @Test
     @Transactional
-    @Order(6)
+    @Order(5)
     fun testDelete() {
         // GIVEN -> 삭제할 memberId 설정
         val memberId = "user10"
@@ -146,7 +146,7 @@ class MemberRepositoryTest {
 
     @Test
     @Transactional
-    @Order(7)
+    @Order(6)
     fun testFindAll() {
         // WHEN -> memberRepository에서 모든 멤버를 조회
         val memberList = memberRepository.findAll()

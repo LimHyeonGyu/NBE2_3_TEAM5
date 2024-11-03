@@ -4,6 +4,7 @@ import edu.example.dev_3_5_cc.entity.Member
 import edu.example.dev_3_5_cc.entity.MemberImage
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 data class MemberRequestDTO(
     @field:NotBlank(message = "회원 ID는 필수 항목입니다.")
@@ -30,12 +31,12 @@ data class MemberRequestDTO(
 
     var image: String? = null
 ) {
-    fun toEntity(): Member = Member(
+    fun toEntity(bCryptPasswordEncoder: BCryptPasswordEncoder): Member = Member(
         memberId = memberId,
         email = email,
         phoneNumber = phoneNumber,
         name = name,
-        password = password,
+        password = bCryptPasswordEncoder.encode(password),
         sex = sex,
         address = address,
         image = image?.let { MemberImage(it) }

@@ -1,10 +1,12 @@
-package edu.example.dev_3_5_cc.repository
+package edu.example.dev_3_5_cc
 
 import edu.example.dev_3_5_cc.entity.Member
+import edu.example.dev_3_5_cc.repository.MemberRepository
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
 class JwtMemberRepositoryTests {
@@ -15,8 +17,9 @@ class JwtMemberRepositoryTests {
     lateinit var bCryptPasswordEncoder: BCryptPasswordEncoder
 
     @Test
+    @Transactional
     fun create() { // JWT 테스트를 위해 패스워드가 암호화된 Member 객체 생성
-        val member = Member(
+        val memberUser = Member(
             memberId = "tester1",
             password = bCryptPasswordEncoder.encode("1111"),
             email = "tester1@abc.com",
@@ -26,9 +29,9 @@ class JwtMemberRepositoryTests {
             address = "tester address",
             role = "ROLE_USER"
         )
-        memberRepository.save(member)
+        memberRepository.save(memberUser)
 
-        val member2 = Member(
+        val memberAdmin = Member(
             memberId = "tester2",
             password = bCryptPasswordEncoder.encode("1111"),
             email = "tester2@abc.com",
@@ -38,6 +41,6 @@ class JwtMemberRepositoryTests {
             address = "tester address",
             role = "ROLE_ADMIN"
         )
-        memberRepository.save(member2)
+        memberRepository.save(memberAdmin)
     }
 }

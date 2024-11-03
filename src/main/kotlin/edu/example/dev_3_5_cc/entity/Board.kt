@@ -1,5 +1,7 @@
 package edu.example.dev_3_5_cc.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -51,4 +53,16 @@ data class Board(
         images.remove(image)
         image.board = null // 양방향 연관관계 해제
     }
+
+    // Reply 추가 메서드
+    fun addReply(reply: Reply) {
+        replies?.add(reply)
+        reply.board = this // 양방향 연관관계 설정
+    }
+
+    fun removeReply(reply: Reply) {
+        replies?.remove(reply)
+        reply.board = null // 양방향 연관관계 해제
+    }
+
 }

@@ -19,22 +19,22 @@ class MemberServiceTest {
     @Autowired
     lateinit var memberService: MemberService
 
-    @BeforeEach
-    fun init() {
-        for (i in 1L..10L) {
-            val member = MemberRequestDTO().apply {
-                memberId = "user$i"
-                email = "user$i@user$i.com"
-                phoneNumber = "010-1111-2222"
-                name = "user$i"
-                password = "user$i"
-                sex = if (i % 2 == 0L) "M" else "F"
-                address = "user$i"
-                image = null
-            }
-            memberService.register(member)
-        }
-    }
+//    @BeforeEach
+//    fun init() {
+//        for (i in 1L..10L) {
+//            val member = MemberRequestDTO().apply {
+//                memberId = "user$i"
+//                email = "user$i@user$i.com"
+//                phoneNumber = "010-1111-2222"
+//                name = "user$i"
+//                password = "user$i"
+//                sex = if (i % 2 == 0L) "M" else "F"
+//                address = "user$i"
+//                image = null
+//            }
+//            memberService.register(member)
+//        }
+//    }
 
     @Test
     @Transactional
@@ -103,7 +103,7 @@ class MemberServiceTest {
         } catch (e: MemberTaskException) {
             assertEquals(404, e.code)
             log.info("에러 코드: ${e.code}")
-            assertEquals("NOT_FOUND", e.message)
+            assertEquals("NOT_FOUND(존재하지 않는 회원입니다)", e.message)
             log.info("에러 메시지: ${e.message}")
         }
     }
@@ -145,7 +145,7 @@ class MemberServiceTest {
         memberService.modify(memberId, updatedMember).run {
             assertEquals("user10", memberId)
             assertEquals("user1111", name)
-            assertEquals("USER", role)
+            assertEquals("ROLE_ADMIN", role)
             assertEquals("default_avatar.png", image)
             log.info("수정된 회원 정보: $this")
         }

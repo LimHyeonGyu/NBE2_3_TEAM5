@@ -10,22 +10,26 @@ import jakarta.transaction.Transactional
 import org.hibernate.query.sqm.tree.SqmNode.log
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.Commit
+import org.springframework.test.context.TestPropertySource
 
 @SpringBootTest
+@TestPropertySource(locations = ["classpath:application-test.properties"])
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class BoardServiceTest {
     @Autowired
     lateinit var boardService: BoardService
 
     @Test
     @Transactional
-    @Commit
     fun testInsert(){
         val boardRequestDTO = BoardRequestDTO().apply {
-            memberId = "5"
+            memberId = "user1"
             title = "new title2"
             description = "new description2"
             category = Category.TIP
@@ -38,7 +42,7 @@ class BoardServiceTest {
     @Test
     @Transactional
     fun read(){
-        val boardId = 7L
+        val boardId = 1L
         boardService.readBoard(boardId).apply {
             assertNotNull(this)
         }
@@ -46,10 +50,9 @@ class BoardServiceTest {
 
     @Test
     @Transactional
-    @Commit
     fun modify(){
         val boardUpdateDTO = BoardUpdateDTO().apply {
-            boardId = 7L
+            boardId = 2L
             title = "title modified"
             description = "description modified"
             category = Category.NOTICE
@@ -63,10 +66,9 @@ class BoardServiceTest {
 
     @Test
     @Transactional
-    @Commit
     fun delete(){
         try {
-            val boardId = 7L
+            val boardId = 3L
             boardService.delete(boardId)
         }catch (e : EntityNotFoundException){
             log.info("EntityNotFoundException message: ${e.message}")
@@ -90,7 +92,7 @@ class BoardServiceTest {
     @Test
     @Transactional
     fun testListByMemberId(){
-        val memberId = "5"
+        val memberId = "user1"
         boardService.listByMemberId(memberId).run {
             assertNotNull(this)
 
@@ -98,6 +100,6 @@ class BoardServiceTest {
                 println(board.boardId)
             }
         }
-
     }
+
 }

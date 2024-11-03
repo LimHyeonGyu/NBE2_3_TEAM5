@@ -11,6 +11,7 @@ import edu.example.dev_3_5_cc.repository.MemberRepository
 import org.hibernate.query.sqm.tree.SqmNode.log
 import org.modelmapper.ModelMapper
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 class MemberService (
     private val memberRepository : MemberRepository,
     private val modelMapper: ModelMapper,
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
 
     fun register(memberRequestDTO: MemberRequestDTO): MemberResponseDTO {
@@ -26,7 +28,7 @@ class MemberService (
             throw MemberException.DUPLICATE.get()
         }
 
-        val member = memberRequestDTO.toEntity()
+        val member = memberRequestDTO.toEntity(bCryptPasswordEncoder)
         log.info("날짜, role, image  값 없는 회원 정보 = $member")
         if (member.role == null) { member.role = "USER" }
         if (member.image == null) { member.image = MemberImage("default_avatar.png") }
@@ -122,7 +124,6 @@ class MemberService (
 
 
 //// 에러 나는 코드들 ////
-// password = bCryptPasswordEncoder.encode(memberRequestDTO.password)
 
 //        // MemberRequestDTO -> Member 엔티티로 매핑
 //        val member = modelMapper.map(memberRequestDTO, Member::class.java).apply {

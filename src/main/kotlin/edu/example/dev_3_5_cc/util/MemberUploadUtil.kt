@@ -30,7 +30,6 @@ class MemberUploadUtil(
             }
         }
         uploadPath = uploadDir.absolutePath
-        println("--- uploadPath : $uploadPath")
     }
 
     // 이미지 업로드 및 Member 업데이트 메서드
