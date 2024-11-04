@@ -7,13 +7,6 @@ import edu.example.dev_3_5_cc.entity.Reply
 data class ReplyRequestDTO (
     var content: String? = null,
     var memberId : String? = null,
-    var boardId : Long? = null
-){
-    fun toEntity(member : Member, board : Board): Reply {
-        return Reply(
-            content = this.content,
-            member = member,
-            board = board
-        )
-    }
-}
+    var boardId : Long? = null,
+    var parentReplyId: Long? = null // 부모 댓글 ID 추가
+)
