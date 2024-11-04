@@ -8,10 +8,10 @@ data class ReplyResponseDTO (
     var memberId : String? = null,
     var boardId : Long? = null,
     var content : String? = null,
-    //멤버 이미지 아직 안들어가서 주석 처리 했습니다.
-//    var thumbnail : String? = null, //작성자의 프로필 썸네일
+    var parentReplyId: Long? = null, // 부모 댓글 ID 추가
     var createdAt : LocalDateTime? = null,
-    var updatedAt : LocalDateTime? = null
+    var updatedAt : LocalDateTime? = null,
+    var childReplies: List<ReplyResponseDTO>? = null // 자식 댓글 리스트 추가
 ){
     constructor(reply : Reply) :
             this(
@@ -19,10 +19,9 @@ data class ReplyResponseDTO (
                 memberId = reply.member?.memberId,
                 boardId = reply.board?.boardId,
                 content = reply.content,
-        // 대충 썸네일 넣는 코드 한 줄
-        // thumbnail = reply.member?.image 뭐 이런식으로 여기서 조금만 수정해서 넣으면 될 것 같아요
+                parentReplyId = reply.parent?.replyId,
                 createdAt = reply.createdAt,
-                updatedAt = reply.updatedAt
-
-    )
+                updatedAt = reply.updatedAt,
+                childReplies = reply.children.map { ReplyResponseDTO(it) } // 자식 댓글들 변환
+            )
 }

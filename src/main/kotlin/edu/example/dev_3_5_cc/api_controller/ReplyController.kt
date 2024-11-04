@@ -46,5 +46,10 @@ class ReplyController(
         return ResponseEntity.ok(replies)
     }
 
-
+    // 특정 부모 댓글에 대한 자식 댓글(대댓글) 리스트 조회
+    @GetMapping("/listByParent/{parentReplyId}")
+    fun listByParentReplyId(@PathVariable("parentReplyId") parentReplyId: Long): ResponseEntity<List<ReplyListDTO>> {
+        val childReplies: List<ReplyListDTO> = replyService.listByParentReplyId(parentReplyId)
+        return ResponseEntity.ok(childReplies)
+    }
 }

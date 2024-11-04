@@ -31,7 +31,16 @@ class ReplyService(
         val member = memberRepository.findByIdOrNull(replyRequestDTO.memberId) ?: throw MemberException.NOT_FOUND.get()
         val board = boardRepository.findByIdOrNull(replyRequestDTO.boardId) ?: throw BoardException.NOT_FOUND.get()
 
-        val reply = replyRequestDTO.toEntity(member, board)
+        val parentReply = replyRequestDTO.parentReplyId?.let {
+            replyRepository.findByIdOrNull(it) ?: throw ReplyException.NOT_FOUND.get()
+        }
+
+        val reply = Reply(
+            content = replyRequestDTO.content,
+            member = member,
+            board = board,
+            parent = parentReply
+        )
 
         val savedReply = replyRepository.save(reply)
         return ReplyResponseDTO(savedReply)
@@ -83,6 +92,16 @@ class ReplyService(
 
         return replies.map { ReplyListDTO(it) }
     }
+
+    fun listByParentReplyId(parentReplyId: Long): List<ReplyListDTO> {
+        // 부모 댓글에 속한 자식 댓글들을 조회
+        val childReplies: List<Reply> = replyRepository.findAllByParent(parentReplyId)
+
+        if (childReplies.isEmpty()) throw ReplyException.NOT_FOUND.get()
+
+        return childReplies.map { ReplyListDTO(it) }
+    }
+
 
     fun checkDeleteReplyAuthorization(replyId : Long) : Boolean{
         val reply = replyRepository.findByIdOrNull(replyId) ?: throw ReplyException.NOT_FOUND.get()
