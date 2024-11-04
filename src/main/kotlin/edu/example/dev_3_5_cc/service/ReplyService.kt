@@ -76,6 +76,14 @@ class ReplyService(
         return replies.map { ReplyListDTO(it) }
     }
 
+    fun listByBoardId(boardId: Long): List<ReplyListDTO>{
+        val replies : List<Reply> = replyRepository.findAllByBoard(boardId)
+
+        if(replies.isEmpty()) throw ReplyException.NOT_FOUND.get()
+
+        return replies.map { ReplyListDTO(it) }
+    }
+
     fun checkDeleteReplyAuthorization(replyId : Long) : Boolean{
         val reply = replyRepository.findByIdOrNull(replyId) ?: throw ReplyException.NOT_FOUND.get()
         val currentUser = securityUtil.getCurrentUser()

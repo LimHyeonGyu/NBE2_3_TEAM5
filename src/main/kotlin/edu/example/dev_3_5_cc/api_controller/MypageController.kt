@@ -1,5 +1,8 @@
 package edu.example.dev_3_5_cc.api_controller
 
+import edu.example.dev_3_5_cc.dto.cart.CartResponseDTO
+import edu.example.dev_3_5_cc.dto.cartItem.CartItemResponseDTO
+import edu.example.dev_3_5_cc.dto.cartItem.CartItemUpdateDTO
 import edu.example.dev_3_5_cc.dto.member.MemberResponseDTO
 import edu.example.dev_3_5_cc.dto.member.MemberUpdateDTO
 import edu.example.dev_3_5_cc.exception.MemberException
@@ -25,10 +28,10 @@ class MypageController (
     val productService: ProductService,
     val boardService: BoardService,
     val orderService: OrderService,
+    val cartService: CartService,
     val reviewService: ReviewService
 ) {
     //-----------------------------------------회원 정보 수정-------------------------------------------------
-
     // 마이페이지 내에서 자신의 회원 정보 조회
     @GetMapping("/{memberId}")
     fun getMember(
@@ -56,7 +59,34 @@ class MypageController (
     }
 
     //--------------------------------------------장바구니----------------------------------------------------
+    // Cart 조회
+    @GetMapping("/cart/{memberId}") // 이후 검색 조건에 따라 수정 필요
+    fun read(@PathVariable("memberId") memberId: String): ResponseEntity<CartResponseDTO> {
+        return ResponseEntity.ok(cartService.read(memberId))
+    }
 
+    // CartItem 수량 수정
+    @PutMapping("/cart/{cartItemId}")
+    fun update(@PathVariable("cartItemId")
+               cartItemId: Long,
+               @Validated @RequestBody cartItemUpdateDTO: CartItemUpdateDTO
+    ): ResponseEntity<CartItemResponseDTO> {
+        return ResponseEntity.ok(cartService.update(cartItemUpdateDTO))
+    }
+
+    // CartItem 삭제 (단일 상품 지우기)
+    @DeleteMapping("/cartItem/{cartItemId}")
+    fun deleteCartItem(@PathVariable("cartItemId") cartItemId: Long): ResponseEntity<Map<String, String>> {
+        cartService.delete(cartItemId)
+        return ResponseEntity.ok(mapOf("result" to "success"))
+    }
+
+    // Cart 삭제 (장바구니 비우기)
+    @DeleteMapping("/cart/{cartId}")
+    fun deleteCart(@PathVariable("cartId") cartId: Long): ResponseEntity<Map<String, String>> {
+        cartService.deleteCart(cartId)
+        return ResponseEntity.ok(mapOf("result" to "success"))
+    }
 
     //---------------------------------------------주문------------------------------------------------------
     @PostMapping("/order")
@@ -90,7 +120,6 @@ class MypageController (
     }
 
     //---------------------------------------------리뷰------------------------------------------------------
-
     @PostMapping("/review")
     fun createReview(@RequestBody reviewRequestDTO: ReviewRequestDTO): ResponseEntity<ReviewResponseDTO>? {
         return ResponseEntity.ok(reviewService.createReview(reviewRequestDTO))
@@ -111,3 +140,4 @@ class MypageController (
     }
 }
 
+// 📌유저 주문 안뜸, 주문 상태 안바뀜

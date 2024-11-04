@@ -15,18 +15,18 @@ data class Reply(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-     var board: Board? = null,
+    var board: Board? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-     var member: Member? = null,
+    var member: Member? = null,
 
-     var content: String? = null,
+    var content: String? = null,
 
     @CreatedDate
-     var createdAt: LocalDateTime? = null,
+    var createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
-     var updatedAt: LocalDateTime? = null
+    var updatedAt: LocalDateTime? = null
 
 )

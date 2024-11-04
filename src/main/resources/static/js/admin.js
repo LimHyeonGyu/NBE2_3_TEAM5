@@ -450,7 +450,7 @@ function addOrder(data) {
             if (selectedStatus !== "") {
                 const changeData = {
                     orderId: order.orderId,
-                    orderStatus: selectedStatus
+                    orderstatus: selectedStatus
                 };
                 console.log(changeData);
                 fetchUpdateOrder(changeData).then( () => {
