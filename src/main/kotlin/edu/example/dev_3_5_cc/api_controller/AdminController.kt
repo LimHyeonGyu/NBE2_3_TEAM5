@@ -1,5 +1,6 @@
 package edu.example.dev_3_5_cc.api_controller
 
+import edu.example.dev_3_5_cc.dto.cart.CartResponseDTO
 import edu.example.dev_3_5_cc.dto.member.MemberResponseDTO
 import edu.example.dev_3_5_cc.dto.member.MemberUpdateDTO
 import edu.example.dev_3_5_cc.dto.order.OrderResponseDTO
@@ -10,10 +11,7 @@ import edu.example.dev_3_5_cc.dto.product.ProductUpdateDTO
 import edu.example.dev_3_5_cc.exception.OrderException
 import edu.example.dev_3_5_cc.exception.ProductException
 import edu.example.dev_3_5_cc.log
-import edu.example.dev_3_5_cc.service.BoardService
-import edu.example.dev_3_5_cc.service.MemberService
-import edu.example.dev_3_5_cc.service.OrderService
-import edu.example.dev_3_5_cc.service.ProductService
+import edu.example.dev_3_5_cc.service.*
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -25,10 +23,10 @@ class AdminController (
     val memberService: MemberService,
     val productService: ProductService,
     val boardService: BoardService,
-    val orderService: OrderService
+    val orderService: OrderService,
+    val cartService: CartService,
 ) {
     //--------------------------------------------회원 관리------------------------------------------------------
-  
     // 관리자의 회원 전체 조회
     @GetMapping("/memberList") // 📌l을 대문자 L로 바꿨다고 현규님께 말씀드리기
     fun getAllMembers(): ResponseEntity<List<MemberResponseDTO>> {
@@ -88,13 +86,16 @@ class AdminController (
     }
 
     //---------------------------------------------장바구니------------------------------------------------------
-
+    // Cart 전체 조회
+    @GetMapping("/cart")
+    fun readAll(): ResponseEntity<List<CartResponseDTO>> {
+        return ResponseEntity.ok(cartService.readAll()) }
 
     //--------------------------------------------주문 관리------------------------------------------------------
     @GetMapping("/order")
     fun getAllOrders() : ResponseEntity<List<OrderResponseDTO>> {
         val orderList = orderService.list()
-        return ResponseEntity.ok<List<OrderResponseDTO>>(orderList)
+        return ResponseEntity.ok(orderList)
     }
 
     //단일 주문 조회
@@ -126,8 +127,5 @@ class AdminController (
 
         return ResponseEntity.ok(response) // 200 OK와 함께 응답 본문 반환
     }
-
-
-
 
 }

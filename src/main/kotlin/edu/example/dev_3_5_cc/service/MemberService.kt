@@ -30,7 +30,7 @@ class MemberService (
 
         val member = memberRequestDTO.toEntity(bCryptPasswordEncoder)
         log.info("날짜, role, image  값 없는 회원 정보 = $member")
-        if (member.role == null) { member.role = "USER" }
+        if (member.role == null) { member.role = "ROLE_USER" }
         if (member.image == null) { member.image = MemberImage("default_avatar.png") }
 
         val savedMember = memberRepository.save(member)
@@ -43,15 +43,14 @@ class MemberService (
         return memberRepository.getMemberResponseDTO(memberId) ?: throw MemberException.NOT_FOUND.get()
     }
 
-    // 📌둘 중🔼🔽 어느것이 성능이 더 좋은지?? -> 테스트 해보기
+    // 📌둘 중🔼🔽 어느것이 성능이 더 좋은지?? -> 🔼 성능 우수
     fun read2(memberId: String): MemberResponseDTO {
         val member = memberRepository.findById(memberId).orElseThrow { MemberException.NOT_FOUND.get() }
         return MemberResponseDTO(member!!)
     }
 
     fun modify(memberId: String, memberUpdateDTO: MemberUpdateDTO): MemberResponseDTO {
-        val member = memberRepository.findByIdOrNull(memberId)
-            ?: throw MemberException.NOT_FOUND.get()
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw MemberException.NOT_FOUND.get()
 
         with(member) {
             // null이 아닌 필드만 수정

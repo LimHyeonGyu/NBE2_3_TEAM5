@@ -115,7 +115,7 @@ class BoardService(
 
         val isAuthorized = when (category) {
             Category.GENERAL -> "ROLE_USER" == currentRole || "ROLE_ADMIN" == currentRole
-            Category.NOTICE, Category.TIP -> "ROLE_ADMIN" == currentRole
+            Category.NOTICE, Category.TIP, Category.RECYCLE -> "ROLE_ADMIN" == currentRole
             else -> false
         }
 

@@ -70,11 +70,20 @@ class ReplyServiceTest {
     }
 
     @Test
-    @Transactional
     fun testListByMemberId(){
         val memberId = "user4"
         val replies = replyService.listByMemberId(memberId).apply {
             assertEquals("user4", memberId)
+        }
+
+        replies.forEach { println(it) }
+    }
+
+    @Test
+    fun testListByBoardId(){
+        val boardId = 1L
+        val replies = replyService.listByBoardId(boardId).apply {
+            assertEquals(1L, boardId)
         }
 
         replies.forEach { println(it) }

@@ -28,10 +28,9 @@ class BoardServiceTest {
 
     @Test
     @Transactional
-//    @WithMockUser(username = "user1", roles = ["USER"])
     fun testInsert(){
         val boardRequestDTO = BoardRequestDTO().apply {
-            memberId = "user1"
+            memberId = "user2"
             title = "new title2"
             description = "new description2"
             category = Category.GENERAL

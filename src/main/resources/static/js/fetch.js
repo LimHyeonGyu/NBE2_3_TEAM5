@@ -283,7 +283,7 @@ export function fetchCreateMember(member) {
 export function fetchReadMember(memberId){
     const jwtToken = localStorage.getItem('jwtToken');
 
-    return fetch(`/cc/mypage/member/${memberId}`, {
+    return fetch(`/cc/mypage/${memberId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${jwtToken}`,
@@ -380,7 +380,7 @@ export function fetchUpdateCart(data) {
 export function fetchRemoveCartItem(id) {
     const jwtToken = localStorage.getItem('jwtToken');
 
-    return fetch(`/cc/mypage/cartitem/${id}`, {
+    return fetch(`/cc/mypage/cartItem/${id}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${jwtToken}`,
@@ -453,6 +453,7 @@ export function fetchReadOrders() {
     const jwtToken = localStorage.getItem('jwtToken');
     return fetch(`/cc/admin/order`, {
         method: 'GET',
+
         headers: {
             'Authorization': `Bearer ${jwtToken}`,  // JWT 토큰 추가
             'Content-Type': 'application/json'
@@ -730,7 +731,7 @@ export function fetchReadReply(boardId) {
 export function fetchReadImage(memberId){
     const jwtToken = localStorage.getItem('jwtToken');
 
-    return fetch(`/cc/mypage/member/${memberId}`, {
+    return fetch(`/cc/mypage/${memberId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${jwtToken}`,
