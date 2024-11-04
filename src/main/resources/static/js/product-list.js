@@ -19,7 +19,7 @@ import { fetchReadProducts, fetchReadProductPage, fetchReadProductSearch } from 
 //             }
 //
 //             const productName = document.createElement('p');
-//             productName.textContent = `${item.pName}`;
+//             productName.textContent = `${item.pname}`;
 //
 //             const hr = document.createElement('hr');
 //
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 };
 
                 const productName = document.createElement('p');
-                productName.textContent = `${item.pName}`;
+                productName.textContent = `${item.pname}`;
 
                 const hr = document.createElement('hr');
 
@@ -124,7 +124,7 @@ searchBtn.addEventListener('click', () => {
                 };
 
                 const productName = document.createElement('p');
-                productName.textContent = `${item.pName}`;
+                productName.textContent = `${item.pname}`;
 
                 const hr = document.createElement('hr');
 

@@ -283,7 +283,7 @@ export function fetchCreateMember(member) {
 export function fetchReadMember(memberId){
     const jwtToken = localStorage.getItem('jwtToken');
 
-    return fetch(`/cc/mypage/member/${memberId}`, {
+    return fetch(`/cc/mypage/${memberId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${jwtToken}`,
@@ -730,7 +730,7 @@ export function fetchReadReply(boardId) {
 export function fetchReadImage(memberId){
     const jwtToken = localStorage.getItem('jwtToken');
 
-    return fetch(`/cc/mypage/member/${memberId}`, {
+    return fetch(`/cc/mypage/${memberId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${jwtToken}`,
