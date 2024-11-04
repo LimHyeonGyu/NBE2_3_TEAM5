@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import edu.example.dev_3_5_cc.entity.Product
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class ProductResponseDTO(
@@ -27,7 +28,7 @@ data class ProductResponseDTO(
     val createdAt: LocalDateTime? = null,
 
     val updatedAt: LocalDateTime? = null
-) {
+): Serializable {
     constructor(product: Product): this (
         productId = product.productId,
         pName = product.pName,
