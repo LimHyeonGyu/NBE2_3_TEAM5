@@ -16,6 +16,10 @@ import edu.example.dev_3_5_cc.repository.MemberRepository
 import edu.example.dev_3_5_cc.util.SecurityUtil
 import jakarta.transaction.Transactional
 import org.hibernate.query.sqm.tree.SqmNode.log
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -29,6 +33,7 @@ class BoardService(
     private val securityUtil: SecurityUtil,
     private val memberRepository: MemberRepository
 ) {
+    @CacheEvict(value = ["boardList"], allEntries = true) // boardList 캐시 무효화
     fun createBoard (boardRequestDTO: BoardRequestDTO): BoardResponseDTO {
 
 //        // 카테고리 권한 체크
@@ -45,11 +50,14 @@ class BoardService(
         return BoardResponseDTO(savedBoard)
     }
 
+    @Cacheable(value = ["board"], key = "#boardId") // board 캐시 저장
     fun readBoard(boardId: Long) : BoardResponseDTO {
         val board = boardRepository.findByIdOrNull(boardId) ?: throw BoardException.NOT_FOUND.get()
         return BoardResponseDTO(board)
     }
 
+    @CachePut(value = ["board"], key = "#boardUpdateDTO.boardId") // board 캐시 갱신
+    @CacheEvict(value = ["boardList"], allEntries = true) // boardList 캐시 무효화
     fun updateBoard(boardUpdateDTO: BoardUpdateDTO): BoardResponseDTO {
         val board = boardRepository.findByIdOrNull(boardUpdateDTO.boardId) ?: throw BoardException.NOT_FOUND.get()
 
@@ -74,6 +82,10 @@ class BoardService(
         return BoardResponseDTO(board)
     }
 
+    @Caching(evict = [
+        CacheEvict(value = ["board"], key = "#boardId"),    // 특정 board 캐시 무효화
+        CacheEvict(value = ["boardList"], allEntries = true)  // boardList 캐시 무효화
+    ])
     fun delete(boardId: Long){
         val board = boardRepository.findByIdOrNull(boardId) ?: throw BoardException.NOT_FOUND.get()
 
@@ -84,6 +96,8 @@ class BoardService(
         boardRepository.delete(board)
     }
 
+    // boardList 캐시 저장
+    @Cacheable(value = ["boardList"], key = "#pageRequestDTO.page + '-' + #pageRequestDTO.size")
     fun getList(pageRequestDTO: PageRequestDTO): Page<BoardListDTO> {
         try {
             val sort = Sort.by("createdAt").descending()
