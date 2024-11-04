@@ -1,23 +1,34 @@
 package edu.example.dev_3_5_cc.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import edu.example.dev_3_5_cc.dto.PageRequestDTO
 import edu.example.dev_3_5_cc.dto.board.BoardRequestDTO
 import edu.example.dev_3_5_cc.dto.board.BoardUpdateDTO
-import edu.example.dev_3_5_cc.dto.PageRequestDTO
 import edu.example.dev_3_5_cc.entity.Category
-import edu.example.dev_3_5_cc.entity.QBoard.board
 import jakarta.persistence.EntityNotFoundException
 import jakarta.transaction.Transactional
 import org.hibernate.query.sqm.tree.SqmNode.log
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.RequestEntity.post
 import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.test.annotation.Commit
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.context.WebApplicationContext
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import java.awt.PageAttributes
+
 
 @SpringBootTest
 @TestPropertySource(locations = ["classpath:application-test.properties"])
@@ -28,7 +39,6 @@ class BoardServiceTest {
 
     @Test
     @Transactional
-//    @WithMockUser(username = "user1", roles = ["USER"])
     fun testInsert(){
         val boardRequestDTO = BoardRequestDTO().apply {
             memberId = "user1"
@@ -36,6 +46,7 @@ class BoardServiceTest {
             description = "new description2"
             category = Category.GENERAL
         }
+
         boardService.createBoard(boardRequestDTO).apply {
             assertEquals("new title2", title)
         }
