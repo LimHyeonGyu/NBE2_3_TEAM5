@@ -42,7 +42,7 @@ function displayCartData(cartData) {
             <td><input type="checkbox" name="option1" value="Option1"></td>
             <td><img src="/uploadPath/${product.images[0]}" alt="이미지 없음1" class="cart_img"
                      onerror="this.onerror=null; this.src='/images/image01.png';"></td>
-            <td>${product.pName}</td>
+            <td>${product.pname}</td>
             <td>${price}원</td>
             <td>
                 <div class="change_quantity_div">

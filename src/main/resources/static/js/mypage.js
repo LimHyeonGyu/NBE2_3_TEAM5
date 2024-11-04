@@ -135,7 +135,7 @@ function myOrder() {
                     const row2 = document.createElement('div');
                     row2.className = 'order-item-products';
                     row2.innerHTML = `
-                        <div>${orderItemData.product.pName}</div>
+                        <div>${orderItemData.product.pname}</div>
                         <div>${orderItemData.quantity}개</div>
                         <div><button class="add-review-btn">리뷰작성</button></div>
                     `;
@@ -204,7 +204,7 @@ function createReview(product) {
         </div>
         <div>
             <label>상품명</label>
-            <div>${product.pName}</div>
+            <div>${product.pname}</div>
         </div>
         <div>
             <label>별점</label>
