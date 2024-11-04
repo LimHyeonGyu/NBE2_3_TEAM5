@@ -115,6 +115,7 @@ class ProductRepositoryTests {
 
     @Test
     @Order(8)
+    @Transactional
     fun testFindAll() {
         val pageable: Pageable = PageRequest.of(
             0,
@@ -130,6 +131,7 @@ class ProductRepositoryTests {
             assertEquals(10, size)
             assertEquals(10, content.size)
         }
+        productPage.content.forEach{ println(it) }
     }
 
     @Test

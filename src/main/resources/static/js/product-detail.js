@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
                              onerror="this.onerror=null; this.src='/images/image01.png';">
                     </div>
                     <div class="content_prod_info">
-                        <h2>${data.pName}</h2><hr>
+                        <h2>${data.pname}</h2><hr>
                         <div>${price}원</div><hr>
                         <div>재고 수량 : ${data.stock}개</div><hr>
                         <div class="add_cart_div">

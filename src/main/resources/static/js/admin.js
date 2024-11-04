@@ -172,7 +172,7 @@ function addProduct(data) {
         row.id = `product-${product.productId}`;
         row.innerHTML =`
                 <td>${product.productId}</td>
-                <td>${product.pName}</td>
+                <td>${product.pname}</td>
                 <td>${product.price}</td>
                 <td>${product.stock}</td>
                 <td>
@@ -206,7 +206,7 @@ function detailProduct(id) {
                     </div><hr>
                     <div>
                         <label>상품명</label>
-                        <input type="text" id="productName" value="${data.pName}">
+                        <input type="text" id="productName" value="${data.pname}">
                     </div><hr>
                     <div>
                         <label>가격</label>
@@ -262,7 +262,7 @@ function detailProduct(id) {
                 const images = document.getElementById('update-image').files;
                 const product = {
                     productId: data.productId,
-                    pName: document.getElementById('productName').value,
+                    pname: document.getElementById('productName').value,
                     price: document.getElementById('productPrice').value,
                     stock: document.getElementById('productStock').value,
                     description: document.getElementById('productDescription').value
@@ -346,7 +346,7 @@ function createProduct() {
 
     productCreate.addEventListener('click', () => {
         const product = {
-            pName: document.getElementById('productName').value,
+            pname: document.getElementById('productName').value,
             price: document.getElementById('productPrice').value,
             stock: document.getElementById('productStock').value,
             description: document.getElementById('productDescription').value

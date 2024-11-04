@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param
 import java.util.*
 
 interface ProductRepository: JpaRepository<Product, Long>, ProductSearch {
-    @Query(" SELECT p FROM Product p JOIN FETCH p.images pi WHERE p.productId = :productId ")
+    @Query(" SELECT p FROM Product p LEFT JOIN FETCH p.images pi WHERE p.productId = :productId ")
     fun getProduct(@Param("productId") productId: Long): Product?
 
     @Query("SELECT p FROM Product p JOIN FETCH p.images pi WHERE p.productId = :productId")
