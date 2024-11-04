@@ -60,7 +60,7 @@ class ReviewRepositoryTests {
         reviewRepository.saveAll(reviews)
 
         val reviewList = reviewRepository.findAll()
-        assertEquals(5, reviewList.size)
+        assertEquals(6, reviewList.size)
     }
 
     @Test

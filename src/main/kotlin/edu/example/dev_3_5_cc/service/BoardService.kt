@@ -6,17 +6,14 @@ import edu.example.dev_3_5_cc.dto.board.BoardListDTO
 import edu.example.dev_3_5_cc.dto.board.BoardRequestDTO
 import edu.example.dev_3_5_cc.dto.board.BoardResponseDTO
 import edu.example.dev_3_5_cc.dto.board.BoardUpdateDTO
-import edu.example.dev_3_5_cc.dto.PageRequestDTO
 import edu.example.dev_3_5_cc.entity.Board
 import edu.example.dev_3_5_cc.entity.Category
-import edu.example.dev_3_5_cc.entity.QBoard.board
 import edu.example.dev_3_5_cc.exception.AuthorizationException
 import edu.example.dev_3_5_cc.exception.BoardException
 import edu.example.dev_3_5_cc.repository.BoardRepository
 import edu.example.dev_3_5_cc.util.SecurityUtil
 import jakarta.transaction.Transactional
 import org.hibernate.query.sqm.tree.SqmNode.log
-import org.modelmapper.ModelMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -30,7 +27,7 @@ class BoardService(
     private val securityUtil: SecurityUtil
 ) {
 
-    fun createBoard ( boardRequestDTO: BoardRequestDTO): BoardResponseDTO {
+    fun createBoard (boardRequestDTO: BoardRequestDTO): BoardResponseDTO {
 
         // 카테고리 권한 체크
         checkCategoryAuthorization(boardRequestDTO.category)
