@@ -106,7 +106,10 @@
                 body: JSON.stringify(member)
             }).then(response => {
                 if (!response.ok) {
-                    throw new Error('에러발생!!');
+                    return response.json().then(errorData => {
+                        alert(errorData["error message"]);
+                        throw new Error(errorData.message || '에러발생!!');
+                    });
                 }
                 return response.json();
             }).then(responseData => {
