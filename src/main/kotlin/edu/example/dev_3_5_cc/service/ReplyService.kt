@@ -1,9 +1,11 @@
 package edu.example.dev_3_5_cc.service
 
+import edu.example.dev_3_5_cc.annotation.EvictCacheAfterExecution
 import edu.example.dev_3_5_cc.dto.reply.ReplyListDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyRequestDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyResponseDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyUpdateDTO
+import edu.example.dev_3_5_cc.entity.QReply.reply
 import edu.example.dev_3_5_cc.entity.Reply
 import edu.example.dev_3_5_cc.exception.BoardException
 import edu.example.dev_3_5_cc.exception.JWTException
@@ -14,6 +16,10 @@ import edu.example.dev_3_5_cc.repository.MemberRepository
 import edu.example.dev_3_5_cc.repository.ReplyRepository
 import edu.example.dev_3_5_cc.util.SecurityUtil
 import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -26,7 +32,12 @@ class ReplyService(
     private val boardRepository: BoardRepository,   // 끝까지 필요없으면 나중에 지울 예정입니다
     private val securityUtil: SecurityUtil
 ) {
-
+    @Caching(
+        evict = [
+            CacheEvict(value = ["board"], key = "#replyRequestDTO.boardId"), // 특정 boardId의 board 캐시 무효화
+            CacheEvict(value = ["replyList"], allEntries = true) // replyList 캐시의 모든 항목 무효화
+        ]
+    )
     fun createReply(replyRequestDTO: ReplyRequestDTO) : ReplyResponseDTO{
         val member = memberRepository.findByIdOrNull(replyRequestDTO.memberId) ?: throw MemberException.NOT_FOUND.get()
         val board = boardRepository.findByIdOrNull(replyRequestDTO.boardId) ?: throw BoardException.NOT_FOUND.get()
@@ -67,6 +78,7 @@ class ReplyService(
         return ReplyResponseDTO(reply)
     }
 
+
     fun deleteReply(replyId : Long){
         val reply = replyRepository.findByIdOrNull(replyId) ?: throw ReplyException.NOT_FOUND.get()
 
@@ -85,6 +97,7 @@ class ReplyService(
         return replies.map { ReplyListDTO(it) }
     }
 
+    @Cacheable(value = ["replayList"], key = "#boardId")
     fun listByBoardId(boardId: Long): List<ReplyListDTO>{
         val replies : List<Reply> = replyRepository.findAllByBoard(boardId)
 
