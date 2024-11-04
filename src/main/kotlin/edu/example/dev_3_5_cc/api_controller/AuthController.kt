@@ -1,24 +1,43 @@
 package edu.example.dev_3_5_cc.api_controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import edu.example.dev_3_5_cc.dto.member.MemberRequestDTO
 import edu.example.dev_3_5_cc.entity.KakaoProfile
+import edu.example.dev_3_5_cc.entity.Member
 import edu.example.dev_3_5_cc.entity.OAuthToken
+import edu.example.dev_3_5_cc.jwt.JWTUtil
+import edu.example.dev_3_5_cc.service.MemberService
+import org.modelmapper.ModelMapper
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
+import java.util.*
 
 @RestController
-class AuthController {
+class AuthController (
+    val memberService: MemberService,
+    val jwtUtil: JWTUtil,
+    private val modelMapper: ModelMapper,
+    private val authenticationManager: AuthenticationManager,
+
+){
+
     @GetMapping("auth/kakao/callback")
-    @ResponseBody
     fun kakaoCallback(code: String): String {
+
         //POST방식으로 key=value 데이터를 요청 (카카오쪽으로)
         val rt: RestTemplate = RestTemplate()
 
@@ -45,7 +64,7 @@ class AuthController {
             String::class.java
         )
 
-        //Gson, Json Simple, ObjectMapper
+        //ObjectMapper
         val objectMapper = ObjectMapper()
         val oauthToken : OAuthToken = objectMapper.readValue(response.body, OAuthToken::class.java)
 
@@ -71,8 +90,25 @@ class AuthController {
         val objectMapper2 = ObjectMapper()
         val kakaoProfile : KakaoProfile = objectMapper2.readValue(response2.body, KakaoProfile::class.java)
 
-        println("카카오 아이디(번호): ${kakaoProfile.id}")
+        val newKakaoProfile = memberService.findOrRegisterKakaoMember(kakaoProfile)
+        println("카카오 아이디(번호): ${newKakaoProfile.memberId}")
+        println("카카오 비밀번호:${newKakaoProfile.password}")
 
-        return "응답: ${response2.body}"
+
+        //로그인 처리
+        return try {
+            val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(newKakaoProfile.memberId, newKakaoProfile.password))
+            if (authentication.isAuthenticated) {
+                val jwtToken = jwtUtil.createAccessToken(newKakaoProfile.memberId!!,"ROLE_USER",1000 * 60 * 60 * 10L)
+                println("발급된 JWT: ${jwtToken}" )
+            }
+            SecurityContextHolder.getContext().authentication = authentication
+
+            "redirect:/"
+        } catch (ex: BadCredentialsException) {
+            //로그인 실패 시 처리
+            println("로그인 실패: ${ex.message}")
+            return "redirect:/login?error=invalid_credentials"
+        }
     }
 }

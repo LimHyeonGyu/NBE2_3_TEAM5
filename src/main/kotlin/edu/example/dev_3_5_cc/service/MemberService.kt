@@ -3,23 +3,30 @@ package edu.example.dev_3_5_cc.service
 import edu.example.dev_3_5_cc.dto.member.MemberRequestDTO
 import edu.example.dev_3_5_cc.dto.member.MemberResponseDTO
 import edu.example.dev_3_5_cc.dto.member.MemberUpdateDTO
+import edu.example.dev_3_5_cc.entity.KakaoProfile
 import edu.example.dev_3_5_cc.entity.Member
 import edu.example.dev_3_5_cc.entity.MemberImage
 import edu.example.dev_3_5_cc.exception.MemberException
 import edu.example.dev_3_5_cc.log
 import edu.example.dev_3_5_cc.repository.MemberRepository
 import org.modelmapper.ModelMapper
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Service
 @Transactional
 class MemberService (
     private val memberRepository : MemberRepository,
     private val modelMapper: ModelMapper,
-//  private val bCryptPasswordEncoder: BCryptPasswordEncoder 비밀번호 암호화 설정 -> 📌JWT할 때 구현하기
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
+
+    @Value("\${cos.key}")
+    lateinit var cosKey: String
 
     fun register(memberRequestDTO: MemberRequestDTO): MemberResponseDTO {
         // MemberRequestDTO -> Member 엔티티로 매핑
@@ -84,6 +91,30 @@ class MemberService (
 
         // Member -> MemberResponseDTO 매핑 후 리스트로 반환
         return memberList.map { member -> modelMapper.map(member, MemberResponseDTO::class.java) }
+    }
+
+    fun findOrRegisterKakaoMember(kakaoProfile: KakaoProfile): Member {
+        val memberId = kakaoProfile.id.toString()
+        // 가입자 체크
+        val existingMemberResponse = memberRepository.findById(memberId)
+        log.info("memberId 조회 결과: ${existingMemberResponse.isPresent}")
+        return if (existingMemberResponse.isPresent) {
+            // 이미 가입된 경우, 해당 멤버 반환
+            log.info("기존 회원입니다--------------------")
+            existingMemberResponse.get()
+        } else {
+            // 가입되지 않은 경우, 새로운 멤버 등록
+            val encodedPassword = bCryptPasswordEncoder.encode(cosKey)
+            val newMemberRequest = MemberRequestDTO().apply {
+                this.memberId = memberId
+                this.password = encodedPassword
+            }
+            // 새로운 회원 등록
+            register(newMemberRequest)
+            log.info("새로운 회원을 등록합니다--------------")
+            // 새로 등록된 회원을 반환
+            memberRepository.findById(memberId).get()
+        }
     }
 
 }
