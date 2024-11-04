@@ -65,4 +65,8 @@ data class Board(
         reply.board = null // 양방향 연관관계 해제
     }
 
+    override fun toString(): String { // 📌강사님께 질문
+        return "Board(boardId=$boardId, title=$title)"
+    }
+
 }

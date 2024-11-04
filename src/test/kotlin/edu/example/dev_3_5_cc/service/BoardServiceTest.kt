@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.annotation.Commit
 import org.springframework.test.context.TestPropertySource
 
@@ -27,12 +28,13 @@ class BoardServiceTest {
 
     @Test
     @Transactional
+//    @WithMockUser(username = "user1", roles = ["USER"])
     fun testInsert(){
         val boardRequestDTO = BoardRequestDTO().apply {
             memberId = "user1"
             title = "new title2"
             description = "new description2"
-            category = Category.TIP
+            category = Category.GENERAL
         }
         boardService.createBoard(boardRequestDTO).apply {
             assertEquals("new title2", title)

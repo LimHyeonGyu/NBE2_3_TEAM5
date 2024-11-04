@@ -22,7 +22,7 @@ class JwtMemberRepositoryTests {
         val memberUser = Member(
             memberId = "tester1",
             password = bCryptPasswordEncoder.encode("1111"),
-            email = "tester1@abc.com",
+//            email = "tester1@abc.com",
             phoneNumber = "12345678",
             name = "테스터1",
             sex = "MALE",

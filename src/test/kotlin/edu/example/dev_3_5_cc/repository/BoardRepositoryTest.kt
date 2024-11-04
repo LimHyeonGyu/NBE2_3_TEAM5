@@ -38,7 +38,7 @@ class BoardRepositoryTest {
     fun testInsert(){
         val board = Board().apply {
             val foundMember = memberRepository.findByIdOrNull("user1") ?: throw NoSuchElementException("No member found")
-            val savedMember : Member? = foundMember
+            val savedMember : Member = foundMember
             println(savedMember)
 
             member = savedMember
@@ -96,7 +96,7 @@ class BoardRepositoryTest {
         val pageable: Pageable = PageRequest.of(
             0,
             10,
-            Sort.by("boardId").ascending())
+            Sort.by("boardId").descending())
 
         val boardPage = boardRepository.findAll(pageable)
         with(boardPage){

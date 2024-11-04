@@ -27,7 +27,7 @@ class BoardService(
     private val securityUtil: SecurityUtil
 ) {
 
-    fun createBoard ( boardRequestDTO: BoardRequestDTO): BoardResponseDTO {
+    fun createBoard (boardRequestDTO: BoardRequestDTO): BoardResponseDTO {
 
         // 카테고리 권한 체크
         checkCategoryAuthorization(boardRequestDTO.category)
