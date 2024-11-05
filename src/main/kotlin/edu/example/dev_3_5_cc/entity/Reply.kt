@@ -28,9 +28,9 @@ data class Reply(
     @JoinColumn(name = "parent_id")
     var parent: Reply? = null,
 
-    // 자식 댓글 목록 (부모 댓글일 경우에만 자식 댓글이 있을 수 있음)
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var children: MutableList<Reply> = mutableListOf(),
+//    // 자식 댓글 목록 (부모 댓글일 경우에만 자식 댓글이 있을 수 있음)
+//    @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL], orphanRemoval = true)
+//    var children: MutableList<Reply> = mutableListOf(),
 
     @CreatedDate
     var createdAt: LocalDateTime? = null,
@@ -38,13 +38,14 @@ data class Reply(
     @LastModifiedDate
     var updatedAt: LocalDateTime? = null
 
-) {
-    // 자식 댓글 추가 (부모 댓글에만 추가 가능)
-    fun addChildReply(child: Reply) {
-        if (this.parent != null) {
-            throw IllegalArgumentException("대댓글에는 대댓글을 추가할 수 없음") //아마도 뷰에서 답글 버튼때문에 필요없을 수 도
-        }
-        child.parent = this
-        children.add(child)
-    }
-}
+)
+//{
+//    // 자식 댓글 추가 (부모 댓글에만 추가 가능)
+//    fun addChildReply(child: Reply) {
+//        if (this.parent != null) {
+//            throw IllegalArgumentException("대댓글에는 대댓글을 추가할 수 없음") //아마도 뷰에서 답글 버튼때문에 필요없을 수 도
+//        }
+//        child.parent = this
+//        children.add(child)
+//    }
+//}
