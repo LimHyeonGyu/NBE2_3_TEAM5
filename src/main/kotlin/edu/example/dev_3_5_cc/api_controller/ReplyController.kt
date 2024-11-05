@@ -40,7 +40,7 @@ class ReplyController(
 
     // Reply 전체 리스트 조회 - 확인 완료
     @GetMapping("/listByMember/{memberId}")
-    @PreAuthorize("#memberId == principal.username or hasRole('ADMIN')") // 작성자 확인
+    @PreAuthorize("@securityUtil.getCurrentUser().memberId == #memberId or hasRole('ADMIN')")// 작성자 확인
     fun listByMemberId(@Validated @PathVariable("memberId") memberId : String) : ResponseEntity<List<ReplyListDTO>> {
         val replies : List<ReplyListDTO> = replyService.listByMemberId(memberId)
         return ResponseEntity.ok(replies)
