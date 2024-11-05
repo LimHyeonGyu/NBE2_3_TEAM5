@@ -28,6 +28,7 @@ class BoardController(
     // Board 단일 조회 - 확인 완료
     @GetMapping("/{boardId}")
     fun getBoard(@PathVariable("boardId") boardId : Long) : ResponseEntity<BoardResponseDTO> {
+        boardService.incrementViewCount(boardId)
         return ResponseEntity.ok(boardService.readBoard(boardId))
     }
 

@@ -39,7 +39,9 @@ data class Board(
     var createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
-    var updatedAt: LocalDateTime? = null
+    var updatedAt: LocalDateTime? = null,
+
+    var viewCount: Int? = 0
 
 ){
     // 이미지 추가

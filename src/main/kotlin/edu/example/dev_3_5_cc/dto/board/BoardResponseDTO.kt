@@ -16,7 +16,8 @@ data class BoardResponseDTO (
      var imageFilenames: List<String?>? = null, // 이미지 파일 이름들을 담을 리스트 추가
      var createdAt: LocalDateTime? = null,
      var updatedAt: LocalDateTime?= null,
-     var replies: MutableList<ReplyResponseDTO>? = null
+     var replies: MutableList<ReplyResponseDTO>? = null,
+     var viewCount: Int? = null
 ): Serializable {
     constructor(board: Board) :
             this(
@@ -29,6 +30,7 @@ data class BoardResponseDTO (
                 imageFilenames = board.images.map { it.filename }, // Map images to filenames
                 createdAt = board.createdAt,
                 updatedAt = board.updatedAt,
-                replies = board.replies?.mapNotNull { it?.let{ReplyResponseDTO(it)} }?.toMutableList()
+                replies = board.replies?.mapNotNull { it?.let{ReplyResponseDTO(it)} }?.toMutableList(),
+                viewCount = board.viewCount
             )
 }
