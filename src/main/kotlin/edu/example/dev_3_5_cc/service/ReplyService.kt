@@ -65,7 +65,9 @@ class ReplyService(
 //    }
 
     fun updateReply(replyUpdateDTO: ReplyUpdateDTO) : ReplyResponseDTO{
-        val reply = replyRepository.findByIdOrNull(replyUpdateDTO.replyId) ?: throw ReplyException.NOT_FOUND.get()
+        val reply = replyRepository.findByIdOrNull(replyUpdateDTO.replyId)?.also {
+            it.board?.boardId?.let { boardId -> evictBoardCache(boardId) }
+        } ?: throw ReplyException.NOT_FOUND.get()
 
         try {
             with(reply){
@@ -80,7 +82,9 @@ class ReplyService(
 
 
     fun deleteReply(replyId : Long){
-        val reply = replyRepository.findByIdOrNull(replyId) ?: throw ReplyException.NOT_FOUND.get()
+        val reply = replyRepository.findByIdOrNull(replyId)?.also {
+            it.board?.boardId?.let { boardId -> evictBoardCache(boardId) }
+        } ?: throw ReplyException.NOT_FOUND.get()
 
         try {
             replyRepository.delete(reply)
@@ -131,6 +135,16 @@ class ReplyService(
         // 원래에서는 AccessDeniedException이 있는데 이걸 만들려고 보니 자꾸 오류가 나서 그냥 저렇게 해뒀습니다
         // 권한이 없는 경우 예외 발생
         throw JWTException("권한이 없습니다")
+    }
+
+    @Caching(
+        evict = [
+            CacheEvict(value = ["board"], key = "#boardId"), // 특정 boardId의 board 캐시 무효화
+            CacheEvict(value = ["replyList"], allEntries = true) // replyList 캐시의 모든 항목 무효화
+        ]
+    )
+    fun evictBoardCache(boardId: Long) {
+        // 단순히 캐시를 제거하기 위한 빈 함수
     }
 
 }
