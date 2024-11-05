@@ -61,7 +61,7 @@
 //        memberRepository.save(member).run {
 //            assertNotNull(memberId)
 //        }
-//        product = Product(pName = "Test Product", price = 100L, stock = 10)
+//        product = Product(pname = "Test Product", price = 100L, stock = 10)
 //        productRepository.save(product).run {
 //            assertNotNull(productId)
 //        }

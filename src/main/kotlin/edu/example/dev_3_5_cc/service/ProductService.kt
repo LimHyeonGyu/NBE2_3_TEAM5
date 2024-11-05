@@ -42,7 +42,7 @@ class ProductService(
     fun update(productUpdateDTO: ProductUpdateDTO) =
         productRepository.findByIdOrNull(productUpdateDTO.productId)?.runCatching {
             apply {
-                pName = productUpdateDTO.pName
+                pname = productUpdateDTO.pname
                 price = productUpdateDTO.price
                 description = productUpdateDTO.description
                 stock = productUpdateDTO.stock
@@ -74,7 +74,7 @@ class ProductService(
             ?: throw ProductException.NOT_FOUND.get()
 
     // Page<ProductListDTO> 객체를 반환하도록 수정 예정
-    fun getListByPname(pName: String): List<ProductListDTO> =
-        productRepository.findBypNameContaining(pName)?.map(::ProductListDTO)
+    fun getListByPname(pname: String): List<ProductListDTO> =
+        productRepository.findByPnameContaining(pname)?.map(::ProductListDTO)
             ?: throw ProductException.NOT_FOUND.get()
 }

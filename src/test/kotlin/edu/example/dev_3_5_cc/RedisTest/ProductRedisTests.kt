@@ -35,7 +35,7 @@ class ProductRedisTests {
             // 1. 100개의 Product 객체를 초기 데이터로 삽입하여 테스트에서 사용할 수 있도록 설정
             for (i in 1..100) {
                 val product = Product(
-                    pName = "상품 $i",
+                    pname = "상품 $i",
                     price = 10000,
                     description = "상품설명 $i",
                     stock = 100
@@ -102,7 +102,7 @@ class ProductRedisTests {
         // 2. Product 업데이트 DTO 생성
         val productUpdateDTO = ProductUpdateDTO(
             productId = 20L,
-            pName = "REDIS UPDATE TEST",
+            pname = "REDIS UPDATE TEST",
             price = 20000,
             description = "REDIS TEST UPDATE",
             stock = 10
@@ -120,9 +120,9 @@ class ProductRedisTests {
 
         // 6. 수정 전후 데이터 출력
         println("--------- Update 캐시 갱신 테스트 ---------")
-        println("수정 전 Redis 의 Product.pName : ${product.pName}")
-        println("수정 후 DB 의 Product.pName: ${mySqlProduct.pName}")
-        println("수정 후 Redis 의 Product.pName: ${redisProduct.pName}")
+        println("수정 전 Redis 의 Product.pname : ${product.pname}")
+        println("수정 후 DB 의 Product.pname: ${mySqlProduct.pname}")
+        println("수정 후 Redis 의 Product.pname: ${redisProduct.pname}")
         println("-----------------------------------------")
     }
 
@@ -264,7 +264,7 @@ class ProductRedisTests {
                 repeat(20) {
                     val productUpdateDTO = ProductUpdateDTO(
                         productId = productId,
-                        pName = "Concurrency Test",
+                        pname = "Concurrency Test",
                         price = 30000,
                         description = "Testing concurrent writes",
                         stock = 15
@@ -286,8 +286,8 @@ class ProductRedisTests {
 
         // 6. 테스트 완료 후 메시지 출력
         println("------- 동시 읽기/쓰기 테스트 완료 --------")
-        println("데이터베이스의 최종 Product: ${dbProduct?.pName}, ${dbProduct?.price}, ${dbProduct?.description}, ${dbProduct?.stock}")
-        println("캐시의 최종 Product: ${cacheProduct.pName}, ${cacheProduct.price}, ${cacheProduct.description}, ${cacheProduct.stock}")
+        println("데이터베이스의 최종 Product: ${dbProduct?.pname}, ${dbProduct?.price}, ${dbProduct?.description}, ${dbProduct?.stock}")
+        println("캐시의 최종 Product: ${cacheProduct.pname}, ${cacheProduct.price}, ${cacheProduct.description}, ${cacheProduct.stock}")
         println("----------------------------------------")
     }
 

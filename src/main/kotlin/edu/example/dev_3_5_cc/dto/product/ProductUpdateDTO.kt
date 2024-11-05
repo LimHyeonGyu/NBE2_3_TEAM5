@@ -9,8 +9,7 @@ data class ProductUpdateDTO(
     val productId: Long? = null,
 
     @field:NotEmpty
-    @JsonProperty("pName")
-    val pName: String? = null,
+    val pname: String? = null,
 
     @field:Min(0)
     val price: Long? = null,

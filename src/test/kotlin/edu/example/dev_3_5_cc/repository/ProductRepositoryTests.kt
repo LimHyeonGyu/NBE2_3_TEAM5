@@ -25,7 +25,7 @@ class ProductRepositoryTests {
     @Order(1)
     fun testInsert() {
         val product = Product().apply {
-            pName = "JPA 테스트"
+            pname = "JPA 테스트"
             price = 10000
             description = "JPA INSERT TEST"
             stock = 10
@@ -40,7 +40,7 @@ class ProductRepositoryTests {
     fun testDataInsert() {
         for (i in 2..100){
             val product = Product().apply {
-                pName = "JPA 테스트$i"
+                pname = "JPA 테스트$i"
                 price = 10000
                 description = "JPA INSERT TEST$i"
                 stock = 10
@@ -84,7 +84,7 @@ class ProductRepositoryTests {
             ?: throw NoSuchElementException()
 
         product.apply {
-            pName = "Update 테스트"
+            pname = "Update 테스트"
             stock = 20
             description = "Update Test Test"
         }
@@ -95,7 +95,7 @@ class ProductRepositoryTests {
         println(foundProduct)
 
         foundProduct.run {
-            assertEquals("Update 테스트", pName)
+            assertEquals("Update 테스트", pname)
             assertEquals(20, stock)
         }
     }

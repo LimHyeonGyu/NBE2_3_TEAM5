@@ -20,5 +20,5 @@ interface ProductRepository: JpaRepository<Product, Long>, ProductSearch {
     @Query("SELECT p FROM Product p JOIN FETCH p.images pi")
     fun getProductDTOFetch(pageable: Pageable): Page<ProductRequestDTO>?
 
-    fun findBypNameContaining(pName: String): List<Product>?
+    fun findByPnameContaining(pname: String): List<Product>?
 }

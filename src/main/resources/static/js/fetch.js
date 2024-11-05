@@ -46,7 +46,7 @@ export function fetchReadProductPage(pageNumber = 1) {
 //수정완료
 export function fetchReadProductSearch(name){
     const jwtToken = localStorage.getItem('jwtToken');
-    return fetch(`/cc/product/listByPName/${name}`, {
+    return fetch(`/cc/product/listByPname/${name}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${jwtToken}`,  // JWT 토큰 추가
