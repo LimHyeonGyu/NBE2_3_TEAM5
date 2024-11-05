@@ -4,6 +4,7 @@ import com.querydsl.core.types.Projections.constructor
 import edu.example.dev_3_5_cc.entity.Board
 import edu.example.dev_3_5_cc.entity.Category
 import edu.example.dev_3_5_cc.entity.QBoard.board
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class BoardListDTO (
@@ -12,7 +13,7 @@ data class BoardListDTO (
      val category: Category? = Category.GENERAL,
      val memberId: String? = null,
      val createdAt: LocalDateTime? = null
-){
+): Serializable {
     constructor(board: Board) : this(
         boardId = board.boardId,
         title = board.title,

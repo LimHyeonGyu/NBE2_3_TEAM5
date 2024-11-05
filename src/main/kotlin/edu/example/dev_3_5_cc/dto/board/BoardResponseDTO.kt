@@ -3,6 +3,7 @@ package edu.example.dev_3_5_cc.dto.board
 import edu.example.dev_3_5_cc.dto.reply.ReplyResponseDTO
 import edu.example.dev_3_5_cc.entity.Board
 import edu.example.dev_3_5_cc.entity.Category
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class BoardResponseDTO (
@@ -16,7 +17,7 @@ data class BoardResponseDTO (
      var createdAt: LocalDateTime? = null,
      var updatedAt: LocalDateTime?= null,
      var replies: MutableList<ReplyResponseDTO>? = null
-){
+): Serializable {
     constructor(board: Board) :
             this(
                 boardId = board.boardId,

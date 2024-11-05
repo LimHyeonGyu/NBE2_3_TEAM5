@@ -2,6 +2,7 @@ package edu.example.dev_3_5_cc.dto.product
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import edu.example.dev_3_5_cc.entity.Product
+import java.io.Serializable
 
 data class ProductListDTO(
     val productId: Long? = null,
@@ -14,7 +15,7 @@ data class ProductListDTO(
     val pimage: String? = null,
 
     val stock: Int = 0
-) {
+): Serializable {
     constructor(product: Product): this (
         productId= product.productId,
         pName = product.pName,

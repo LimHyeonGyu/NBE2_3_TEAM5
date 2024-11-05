@@ -15,6 +15,10 @@ import edu.example.dev_3_5_cc.repository.ReviewRepository
 import jakarta.persistence.EntityNotFoundException
 import org.modelmapper.ModelMapper
 import org.modelmapper.PropertyMap
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
@@ -30,6 +34,7 @@ class ReviewService(
     private val memberRepository: MemberRepository,
     private val modelMapper: ModelMapper,
 ) {
+    @CacheEvict(value = ["reviewList"], allEntries = true) // reviewList 캐시 무효화
     fun createReview(reviewRequestDTO: ReviewRequestDTO): ReviewResponseDTO {
         val member = memberRepository.findById(reviewRequestDTO.memberId!!)
             .orElseThrow { EntityNotFoundException("Member not found") }
@@ -47,12 +52,15 @@ class ReviewService(
         return ReviewResponseDTO(savedReview)
     }
 
+    @Cacheable(value = ["review"], key = "#reviewId") // review 캐시 저장
     fun read(reviewId: Long): ReviewResponseDTO {
         val review = reviewRepository.findById(reviewId)
             .orElseThrow { ReviewException.NOT_FOUND.get() }
         return ReviewResponseDTO(review)
     }
 
+    @CachePut(value = ["review"], key = "#reviewUpdateDTO.reviewId") // review 캐시 갱신
+    @CacheEvict(value = ["reviewList"], allEntries = true) // reviewList 캐시 무효화
     fun update(reviewUpdateDTO: ReviewUpdateDTO): ReviewResponseDTO {
         val review = reviewRepository.findById(reviewUpdateDTO.reviewId)
             .orElseThrow { ReviewException.NOT_FOUND.get() }
@@ -64,6 +72,10 @@ class ReviewService(
         return ReviewResponseDTO(updatedReview)
     }
 
+    @Caching(evict = [
+        CacheEvict(value = ["review"], key = "#reviewId"),    // 특정 review 캐시 무효화
+        CacheEvict(value = ["reviewList"], allEntries = true)  // reviewList 캐시 무효화
+    ])
     fun delete(reviewId: Long) {
         val review = reviewRepository.findById(reviewId)
             .orElseThrow { ReviewException.NOT_FOUND.get() }
@@ -83,6 +95,7 @@ class ReviewService(
         }
     }
 
+    @Cacheable(value = ["reviewList"], key = "#pageRequestDTO.page + '-' + #pageRequestDTO.size")
     fun getListByProductId(productId: Long, pageRequestDTO: PageRequestDTO): Page<ReviewListDTO> {
         return try {
             val sort = Sort.by("reviewId").descending()
