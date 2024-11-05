@@ -1,5 +1,6 @@
 package edu.example.dev_3_5_cc.service
 
+import edu.example.dev_3_5_cc.dto.board.BoardResponseDTO
 import edu.example.dev_3_5_cc.dto.order.OrderRequestDTO
 import edu.example.dev_3_5_cc.dto.order.OrderResponseDTO
 import edu.example.dev_3_5_cc.dto.order.OrderUpdateRequestDTO
@@ -8,6 +9,7 @@ import edu.example.dev_3_5_cc.entity.OrderItem
 import edu.example.dev_3_5_cc.entity.OrderStatus
 import edu.example.dev_3_5_cc.entity.Orders
 import edu.example.dev_3_5_cc.entity.Product
+import edu.example.dev_3_5_cc.entity.QBoard.board
 import edu.example.dev_3_5_cc.entity.QOrderItem.orderItem
 import edu.example.dev_3_5_cc.entity.QProduct.product
 import edu.example.dev_3_5_cc.exception.MemberException
@@ -19,6 +21,7 @@ import edu.example.dev_3_5_cc.repository.OrderItemRepository
 import edu.example.dev_3_5_cc.repository.OrderRepository
 import edu.example.dev_3_5_cc.repository.ProductRepository
 import org.modelmapper.ModelMapper
+import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Caching
@@ -33,7 +36,9 @@ class OrderService (
     private val orderItemRepository: OrderItemRepository,
     private val productRepository: ProductRepository,
     private val memberRepository : MemberRepository,
-    private val modelMapper: ModelMapper
+    private val modelMapper: ModelMapper,
+    private val cacheManager: CacheManager
+
 ) {
 
     // 주문 생성
@@ -57,10 +62,8 @@ class OrderService (
             }
 
             foundProduct.changeStock(foundProduct.stock - (orderItemDTO.quantity ?: 0))
-            productRepository.save(foundProduct).also {
-                // product 의 stock 이 감소하면 해당 product 캐시의 수량도 갱신
-                it.productId?.let { id -> updateProductCache(id) }
-            }
+            val savedProd = productRepository.save(foundProduct)
+            savedProd.productId?.let { updateProductCache(it) }
         }
 
         // orderItem 리스트 생성
@@ -132,6 +135,7 @@ class OrderService (
             productRepository.save(product!!).also {
                 // product 의 stock 이 다시 증가하면 해당 product 캐시의 수량도 갱신
                 it.productId?.let { id -> updateProductCache(id) }
+
             }
         }
 
@@ -141,12 +145,11 @@ class OrderService (
         orderRepository.delete(order)
     }
 
-
-    @CachePut(value = ["product"], key = "#productId")
-    @CacheEvict(value = ["productList"], allEntries = true)
     fun updateProductCache(productId: Long): ProductResponseDTO {
         val product: Product = productRepository.findByIdOrNull(productId)
             ?: throw ProductException.NOT_FOUND.get()
+        cacheManager.getCache("product")?.put(productId, ProductResponseDTO(product))
+        cacheManager.getCache("productList")?.clear()
         return ProductResponseDTO(product)
     }
 }
