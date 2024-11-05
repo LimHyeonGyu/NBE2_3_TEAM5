@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.serializer.StringRedisSerializer
 
 @Configuration
 @EnableCaching  // 캐싱 기능 활성화
@@ -24,6 +25,8 @@ class RedisConfig(
     fun redisTemplate(): RedisTemplate<String, Any> {
         val template = RedisTemplate<String, Any>()
         template.connectionFactory = redisConnectionFactory()
+        template.keySerializer = StringRedisSerializer()
+        template.valueSerializer = StringRedisSerializer()
         return template
     }
 }
