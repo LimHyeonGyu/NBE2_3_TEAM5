@@ -500,6 +500,30 @@ export function fetchUpdateOrder(data) {
         });
 }
 
+export function fetchDeleteOrder(id) {
+    const jwtToken = localStorage.getItem('jwtToken');
+    return fetch(`/cc/admin/order/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${jwtToken}`,
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response =>{
+            if(!response.ok) {
+                throw new Error('에러발생!!');
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            console.log('responseData : ', responseData);
+            return responseData;
+        })
+        .catch(error =>  {
+            console.error('Error error:', error);
+        });
+}
+
 export function fetchCreateBoard(board) {
     const jwtToken = localStorage.getItem('jwtToken');
     console.log(board);
