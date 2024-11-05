@@ -138,6 +138,5 @@ class MypageController (
         reviewService.delete(reviewId)
         return ResponseEntity.ok(mapOf("message" to "Review deleted"))
     }
-}
 
-// 📌유저 주문 안뜸, 주문 상태 안바뀜
+}
