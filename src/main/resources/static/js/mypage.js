@@ -12,63 +12,135 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 function myInfo() {
     const menuButtons = document.querySelectorAll('#my-page-menu .mp-menu-btn');
-    const thirdMenuButton = menuButtons[2];
     menuButtons.forEach(button => button.classList.remove('active'));
-    thirdMenuButton.classList.add('active');
+    menuButtons[2].classList.add('active');
 
     const div = document.getElementById('my-page-content');
     fetchReadMember(tokenMemberId).then(data => {
         div.innerHTML = `
             <div id="myInfo-div">
-            <div><h3>개인 정보 확인/수정</h3></div>
-            <div>
-                <label class="my-label">아이디</label>
-                <input id="inputMemberId" type="text" value="${data.memberId}">
-            </div>
-            <div>
-                <label>비밀번호</label>
-                <input id="inputPassword" type="password"">
-            </div>
-            <div>
-                <label>이름</label>
-                <input id="inputName" type="text" value="${data.name}">
-            </div>
-            <div>
-                <label>성별</label>
-                <input id="inputSex" type="text" value="${data.sex}">
-            </div>
-            <div>
-                <label>주소</label>
-                <input id="inputAddress" type="text" value="${data.address}">
-            </div>
-            <div>
-                <label>연락처</label>
-                <input id="inputPhoneNumber" type="text" value="${data.phoneNumber}">
-            </div>
-            <div>
-                <label>이메일</label>
-                <input id="inputEmail" type="text" value="${data.email}">
-            </div>
-            <div>
-                <label>이미지</label>
-                 <img class="mypage-img" src="/uploadPath/${data.image}" alt="이미지 없음1"
-                             onerror="this.onerror=null; this.src='/images/image01.png';">
-            </div>
-            <div>
-                <label></label>
-                <input id="inputImage" type="file" multiple>
-            </div>
-            <div>
-                <button id="update-member">수정</button>
-            </div>
+                <h3>개인 정보 확인/수정</h3>
+                <div><label>아이디</label><input id="inputMemberId" type="text" value="${data.memberId}" disabled></div>
+                <div><label>비밀번호</label><input id="inputPassword" type="password"></div>
+                <div><label>이름</label><input id="inputName" type="text" value="${data.name}"></div>
+                <div><label>성별</label><input id="inputSex" type="text" value="${data.sex}"></div>
+                <div><label>주소</label><input id="inputAddress" type="text" value="${data.address}"></div>
+                <div><label>연락처</label><input id="inputPhoneNumber" type="text" value="${data.phoneNumber}"></div>
+                <div><label>이메일</label><input id="inputEmail" type="text" value="${data.email}"></div>
+                <div><label>이미지</label>
+                    <img class="mypage-img" id="profileImage" src="/uploadPath/${data.image}" alt="이미지 없음" onerror="this.onerror=null; this.src='/images/image01.png';">
+                </div>
+                <div><input id="inputImage" type="file" multiple></div>
+                <div>
+                    <button id="update-member">수정</button>
+                    <button id="upload-image">이미지 수정</button>
+                    <button id="delete-image">이미지 삭제</button>
+                </div>
             </div>
         `;
 
+        // 이미지 미리보기 기능
+        document.getElementById('inputImage').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('profileImage').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
+        // 수정 버튼 클릭 이벤트 (회원 정보 업데이트)
+        document.getElementById('update-member').addEventListener('click', () => {
+            const updatedData = {
+                password: document.getElementById('inputPassword').value,
+                name: document.getElementById('inputName').value,
+                sex: document.getElementById('inputSex').value,
+                address: document.getElementById('inputAddress').value,
+                phoneNumber: document.getElementById('inputPhoneNumber').value,
+                email: document.getElementById('inputEmail').value
+            };
+            updateMemberInfo(updatedData, data.memberId);
+        });
 
+        // 이미지 수정 버튼 클릭 이벤트 (이미지 업로드)
+        document.getElementById('upload-image').addEventListener('click', () => {
+            const imageInput = document.getElementById('inputImage');
+            const file = imageInput.files[0];
+            if (file) {
+                uploadImage(file, data.memberId);
+            } else {
+                alert("이미지를 선택해주세요.");
+            }
+        });
 
+        // 이미지 삭제 버튼 클릭 이벤트
+        document.getElementById('delete-image').addEventListener('click', () => {
+            deleteImage(data.memberId);
+        });
     });
+}
 
+// 회원 정보 업데이트 함수
+function updateMemberInfo(data, memberId) {
+    fetch(`/cc/mypage/${memberId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            if (response.ok) {
+                alert("회원 정보가 성공적으로 업데이트되었습니다.");
+            } else {
+                alert("회원 정보 업데이트에 실패했습니다.");
+            }
+        })
+        .catch(error => {
+            console.error("회원 정보 업데이트 오류:", error);
+            alert("회원 정보 업데이트 중 오류가 발생했습니다.");
+        });
+}
+
+// 이미지 업로드 함수
+function uploadImage(file, memberId) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch(`/cc/memberImage/upload/${memberId}`, {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.text())
+        .then(filename => {
+            document.getElementById('profileImage').src = `/uploadPath/${filename}`;
+            alert("이미지가 성공적으로 업로드되었습니다.");
+        })
+        .catch(error => {
+            console.error("이미지 업로드 오류:", error);
+            alert("이미지 업로드 중 오류가 발생했습니다.");
+        });
+}
+
+// 이미지 삭제 함수
+function deleteImage(memberId) {
+    fetch(`/cc/memberImage/${memberId}`, {
+        method: 'DELETE'
+    })
+        .then(response => {
+            if (response.ok) {
+                document.getElementById('profileImage').src = '/images/image01.png';
+                alert("이미지가 성공적으로 삭제되었습니다.");
+            } else {
+                alert("이미지 삭제에 실패했습니다.");
+            }
+        })
+        .catch(error => {
+            console.error("이미지 삭제 오류:", error);
+            alert("이미지 삭제 중 오류가 발생했습니다.");
+        });
 }
 
 function myOrder() {
