@@ -1,5 +1,6 @@
 package edu.example.dev_3_5_cc.util
 
+import edu.example.dev_3_5_cc.dto.product.ProductResponseDTO
 import edu.example.dev_3_5_cc.exception.ProductException
 import edu.example.dev_3_5_cc.log
 import edu.example.dev_3_5_cc.repository.ProductRepository
@@ -7,6 +8,7 @@ import jakarta.annotation.PostConstruct
 import jakarta.persistence.EntityNotFoundException
 import net.coobird.thumbnailator.Thumbnails
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.CacheManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
@@ -16,6 +18,7 @@ import java.util.*
 @Component
 class ProductUploadUtil(
     private val productRepository: ProductRepository,
+    private val cacheManager: CacheManager,
 
     @Value("\${edu.example.upload.path}")
     private var uploadPath: String
@@ -68,7 +71,10 @@ class ProductUploadUtil(
                     .toFile("$savePath/s_$saveFilename")
 
                 product.addImage(saveFilename)
-                productRepository.save(product)
+                productRepository.save(product).apply {
+                    productId.let { cacheManager.getCache("product")?.put(it, ProductResponseDTO(this)) }
+                }
+                cacheManager.getCache("productList")?.clear()
 
                 saveFilename
             }.onFailure { e ->
@@ -93,7 +99,10 @@ class ProductUploadUtil(
             thumbFile.takeIf { it.exists() }?.delete()
 
             product.images.remove(productImage)
-            productRepository.save(product)
+            productRepository.save(product).apply {
+                productId.let { cacheManager.getCache("product")?.put(it, ProductResponseDTO(this)) }
+            }
+            cacheManager.getCache("productList")?.clear()
         }.onFailure { e ->
             log.info("파일 삭제 중 에러 발생: ${e.message}")
         }
@@ -121,5 +130,6 @@ class ProductUploadUtil(
         }
         images.clear()
         productRepository.save(product)
+        cacheManager.getCache("productList")?.clear()
     }
 }
