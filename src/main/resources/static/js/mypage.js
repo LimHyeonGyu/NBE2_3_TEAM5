@@ -1,4 +1,4 @@
-import { fetchReadBoardByMember,fetchCreateReview, fetchReadOrderMember, fetchReadMember } from './fetch.js';
+import { fetchReadProduct, fetchReadBoardByMember,fetchCreateReview, fetchReadOrderMember, fetchReadMember } from './fetch.js';
 
 document.addEventListener("DOMContentLoaded", function () {
     myOrder();
@@ -125,31 +125,38 @@ function myOrder() {
                         </div><hr>
                         <div id="order-items-${item.orderId}"></div><hr>
                         <div id="order-total-${item.orderId}"></div>
-                    <div>
+                    </div>
                 `;
 
                 let totalPrice = 0;
-
                 const orderItem = row.querySelector(`#order-items-${item.orderId}`);
-                item.orderItems.forEach(orderItemData => {
-                    const row2 = document.createElement('div');
-                    row2.className = 'order-item-products';
-                    row2.innerHTML = `
-                        <div>${orderItemData.product.pname}</div>
+
+                const fetchPromises = item.orderItems.map(orderItemData =>
+                    fetchReadProduct(orderItemData.productId).then(productData => {
+                        const row2 = document.createElement('div');
+                        row2.className = 'order-item-products';
+
+                        row2.innerHTML = `
+                        <div>${productData.pname}</div>
                         <div>${orderItemData.quantity}개</div>
                         <div><button class="add-review-btn">리뷰작성</button></div>
-                    `;
-                    totalPrice += orderItemData.product.price * orderItemData.quantity;
-                    const addReview = row2.querySelector('.add-review-btn');
-                    addReview.addEventListener('click', () => {
-                        createReview(orderItemData.product);
-                    });
-                    orderItem.appendChild(row2);
-                });
+                        `;
 
-                const totalDiv = row.querySelector(`#order-total-${item.orderId}`);
-                const total = totalPrice.toLocaleString();
-                totalDiv.innerHTML = `<div>총가격 : ${total}원</div>`;
+                        totalPrice += productData.price * orderItemData.quantity;
+
+                        const addReview = row2.querySelector('.add-review-btn');
+                        addReview.addEventListener('click', () => {
+                            createReview(productData);
+                        });
+                        orderItem.appendChild(row2);
+                    }).catch(error => console.error('Error fetching product:', error))
+                );
+
+                Promise.all(fetchPromises).then(() => {
+                    const totalDiv = row.querySelector(`#order-total-${item.orderId}`);
+                    const total = totalPrice.toLocaleString();
+                    totalDiv.innerHTML = `<div>총가격 : ${total}원</div>`;
+                });
 
                 div.appendChild(row);
             });
