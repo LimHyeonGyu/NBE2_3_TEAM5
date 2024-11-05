@@ -179,7 +179,7 @@ function detailBoard(id) {
                 </div>
                 <div>
                     <div id="member-${data.memberId}" class="image-td">${data.memberId}</div>
-                    <div>${createdAt}</div>
+                    <div>조회수 ${data.viewCount} | ${createdAt}</div>
                 </div>
                 <div class="board-detail-desc">
                     <div>${imagesHtml}</div>
