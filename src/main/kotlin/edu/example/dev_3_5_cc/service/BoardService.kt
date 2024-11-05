@@ -16,6 +16,7 @@ import edu.example.dev_3_5_cc.repository.MemberRepository
 import edu.example.dev_3_5_cc.util.SecurityUtil
 import jakarta.transaction.Transactional
 import org.hibernate.query.sqm.tree.SqmNode.log
+import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
@@ -28,6 +29,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import java.time.Duration
@@ -40,6 +42,7 @@ class BoardService(
     private val securityUtil: SecurityUtil,
     private val memberRepository: MemberRepository,
     private val redisTemplate: RedisTemplate<String, Any>,
+    private val cacheManager: CacheManager
 ) {
     @CacheEvict(value = ["boardList"], allEntries = true) // boardList 캐시 무효화
     fun createBoard (boardRequestDTO: BoardRequestDTO): BoardResponseDTO {
@@ -184,13 +187,16 @@ class BoardService(
                 else -> 0
             }
             if (increment > 0) {
-                println("-조건문실행")
                 // 데이터베이스에서 해당 boardId를 가진 게시물 조회
                 val board = boardRepository.findByIdOrNull(boardId)
                     ?: throw BoardException.NOT_FOUND.get()
-                with(board){
-                    viewCount = viewCount?.plus(1)
-                }
+
+                board.viewCount = (board.viewCount ?: 0) + increment
+
+                // board 캐시 갱신
+                cacheManager.getCache("board")?.put(boardId, BoardResponseDTO(board))
+
+                // Redis 조회수 키 삭제
                 redisTemplate.delete(key)
            }
         }
