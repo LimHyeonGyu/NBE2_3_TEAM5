@@ -25,6 +25,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.scheduling.annotation.Async
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
@@ -37,7 +39,7 @@ class BoardService(
     private val boardRepository: BoardRepository,
     private val securityUtil: SecurityUtil,
     private val memberRepository: MemberRepository,
-    private val redisTemplate: RedisTemplate<String, Any>
+    private val redisTemplate: RedisTemplate<String, Any>,
 ) {
     @CacheEvict(value = ["boardList"], allEntries = true) // boardList 캐시 무효화
     fun createBoard (boardRequestDTO: BoardRequestDTO): BoardResponseDTO {
@@ -60,17 +62,6 @@ class BoardService(
     fun readBoard(boardId: Long) : BoardResponseDTO {
         val board = boardRepository.findByIdOrNull(boardId) ?: throw BoardException.NOT_FOUND.get()
 
-        val viewerId = getSessionIdOrIpAddress()
-
-        val redisKey = "board:$boardId:viewed_by:$viewerId"
-        println("redisKey")
-        if (redisTemplate.opsForValue().get(redisKey) == null) {
-            board.viewCount = board.viewCount?.plus(1)
-            boardRepository.save(board)
-
-            redisTemplate.opsForValue().set(redisKey, "true")
-            redisTemplate.expire(redisKey, Duration.ofHours(24))
-        }
         return BoardResponseDTO(board)
     }
 
@@ -166,4 +157,42 @@ class BoardService(
         return request.remoteAddr // 클라이언트의 IP 주소 반환
     }
 
+    fun incrementViewCount(boardId: Long) {
+        val viewerId = getSessionIdOrIpAddress()
+        val redisKey = "board:$boardId:viewed_by:$viewerId"
+        val viewCountKey = "board:viewCount:$boardId"
+
+        if (redisTemplate.opsForValue().get(redisKey) == null) {
+            // Redis 에 조회수 증가 기록 추가
+            redisTemplate.opsForValue().increment(viewCountKey, 1)
+            // 중복 조회 방지를 위한 키 설정
+            redisTemplate.opsForValue().set(redisKey, "true", Duration.ofHours(24))
+        }
+    }
+
+    @Scheduled(fixedRate = 10000) // 1분마다 실행 예시, 필요한 시간 간격으로 변경 가능
+    fun updateViewCounts() {
+        println("스케쥴러 실행---")
+        val keys = redisTemplate.keys("board:viewCount:*") // 모든 게시물의 조회수 키 가져오기
+
+        keys.forEach { key ->
+            val boardId = key.split(":").last().toLong() // 키에서 boardId 추출
+            val increment = when (val incrementValue = redisTemplate.opsForValue().get(key)) {
+                is Int -> incrementValue
+                is Long -> incrementValue.toInt()
+                is String -> incrementValue.toIntOrNull() ?: 0
+                else -> 0
+            }
+            if (increment > 0) {
+                println("-조건문실행")
+                // 데이터베이스에서 해당 boardId를 가진 게시물 조회
+                val board = boardRepository.findByIdOrNull(boardId)
+                    ?: throw BoardException.NOT_FOUND.get()
+                with(board){
+                    viewCount = viewCount?.plus(1)
+                }
+                redisTemplate.delete(key)
+           }
+        }
+    }
 }

@@ -1,12 +1,21 @@
 package edu.example.dev_3_5_cc.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.redis.cache.RedisCacheConfiguration
+import org.springframework.data.redis.cache.RedisCacheManager
+import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
+import org.springframework.data.redis.serializer.GenericToStringSerializer
+import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
+import java.time.Duration
 
 @Configuration
 @EnableCaching  // 캐싱 기능 활성화
@@ -20,13 +29,20 @@ class RedisConfig(
         return LettuceConnectionFactory(host, port)
     }
 
-    // Redis 서버와의 데이터를 주고 받기 위한 RedisTemplate 생성
     @Bean
     fun redisTemplate(): RedisTemplate<String, Any> {
-        val template = RedisTemplate<String, Any>()
-        template.connectionFactory = redisConnectionFactory()
-        template.keySerializer = StringRedisSerializer()
-        template.valueSerializer = StringRedisSerializer()
-        return template
+        val redisTemplate = RedisTemplate<String, Any>()
+
+        redisTemplate.connectionFactory = redisConnectionFactory()
+
+        redisTemplate.keySerializer = StringRedisSerializer()
+        redisTemplate.valueSerializer = StringRedisSerializer()
+        redisTemplate.hashKeySerializer = StringRedisSerializer()
+        redisTemplate.hashValueSerializer = StringRedisSerializer()
+
+        redisTemplate.afterPropertiesSet()
+
+        return redisTemplate
     }
+
 }
