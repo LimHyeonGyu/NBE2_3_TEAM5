@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const thirdMenuButton = menuButtons[2];
     thirdMenuButton.addEventListener('click', () => { myInfo() });
 });
+
 function myInfo() {
     const menuButtons = document.querySelectorAll('#my-page-menu .mp-menu-btn');
     const thirdMenuButton = menuButtons[2];
@@ -63,10 +64,6 @@ function myInfo() {
             </div>
             </div>
         `;
-
-
-
-
     });
 
 }
