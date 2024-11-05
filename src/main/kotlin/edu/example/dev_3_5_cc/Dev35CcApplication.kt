@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 
 @SpringBootApplication
 @EnableJpaAuditing
+@EnableScheduling // 스케줄링 기능 활성화
 class Dev35CcApplication
 inline val <reified T> T.log : Logger
     get() = LogManager.getLogger()
