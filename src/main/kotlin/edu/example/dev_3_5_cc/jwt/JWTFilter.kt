@@ -25,18 +25,27 @@ class JWTFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val authorization = request.getHeader("Authorization")
+        var authorization = request.getHeader("Authorization")
         val refreshToken = request.getHeader("RefreshToken")
 
         // Authorization Header 가 null 이 아닐 경우에만 로그 출력
         authorization?.let { log.info("Access Token: $it") }
         refreshToken?.let { log.info("Refresh Token: $it") }
 
+
         // Authorization 헤더 검증
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            log.info("token null")
-            filterChain.doFilter(request, response)
-            return
+            val cookies = request.cookies
+            cookies?.forEach { cookie ->
+                when (cookie.name) {
+                    "jwtToken" -> authorization = cookie.value
+                }
+            }
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
+                log.info("token null")
+                filterChain.doFilter(request, response)
+                return
+            }
         }
 
         log.info("--authorization now--")

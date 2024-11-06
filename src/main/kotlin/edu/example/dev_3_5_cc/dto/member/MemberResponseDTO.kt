@@ -28,4 +28,3 @@ data class MemberResponseDTO(
         updatedAt = member.updatedAt
     )
 }
-
