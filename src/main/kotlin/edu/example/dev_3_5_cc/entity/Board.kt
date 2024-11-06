@@ -1,5 +1,7 @@
 package edu.example.dev_3_5_cc.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -37,7 +39,9 @@ data class Board(
     var createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
-    var updatedAt: LocalDateTime? = null
+    var updatedAt: LocalDateTime? = null,
+
+    var viewCount: Int? = 0
 
 ){
     // 이미지 추가
@@ -51,4 +55,9 @@ data class Board(
         images.remove(image)
         image.board = null // 양방향 연관관계 해제
     }
+
+    override fun toString(): String {
+        return "Board(boardId=$boardId, title=$title)"
+    }
+
 }

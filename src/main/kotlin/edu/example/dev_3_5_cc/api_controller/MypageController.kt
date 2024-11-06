@@ -1,5 +1,13 @@
 package edu.example.dev_3_5_cc.api_controller
 
+import edu.example.dev_3_5_cc.dto.cart.CartResponseDTO
+import edu.example.dev_3_5_cc.dto.cartItem.CartItemResponseDTO
+import edu.example.dev_3_5_cc.dto.cartItem.CartItemUpdateDTO
+import edu.example.dev_3_5_cc.dto.member.MemberResponseDTO
+import edu.example.dev_3_5_cc.dto.member.MemberUpdateDTO
+import edu.example.dev_3_5_cc.exception.MemberException
+import edu.example.dev_3_5_cc.exception.MemberTaskException
+import edu.example.dev_3_5_cc.service.MemberService
 import edu.example.dev_3_5_cc.dto.order.OrderRequestDTO
 import edu.example.dev_3_5_cc.dto.order.OrderResponseDTO
 import edu.example.dev_3_5_cc.dto.review.ReviewRequestDTO
@@ -7,6 +15,7 @@ import edu.example.dev_3_5_cc.dto.review.ReviewResponseDTO
 import edu.example.dev_3_5_cc.dto.review.ReviewUpdateDTO
 import edu.example.dev_3_5_cc.exception.OrderException
 import edu.example.dev_3_5_cc.service.*
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -19,13 +28,65 @@ class MypageController (
     val productService: ProductService,
     val boardService: BoardService,
     val orderService: OrderService,
+    val cartService: CartService,
     val reviewService: ReviewService
 ) {
     //-----------------------------------------회원 정보 수정-------------------------------------------------
+    // 마이페이지 내에서 자신의 회원 정보 조회
+    @GetMapping("/{memberId}")
+    fun getMember(
+        @PathVariable memberId: String
+    ): ResponseEntity<MemberResponseDTO> {
+        val member = memberService.read(memberId)
+        return ResponseEntity.ok(member)
+    }
 
+    // 마이페이지 내에서 회원의 직접 정보 수정(role 수정 미포함)
+    @PutMapping("/{memberId}")
+    fun updateMember(
+        @PathVariable memberId: String,
+        @Validated @RequestBody memberUpdateDTO: MemberUpdateDTO
+    ): ResponseEntity<MemberResponseDTO> {
+        val response = memberService.modify(memberId, memberUpdateDTO)
+        return ResponseEntity.ok(response)
+    }
+
+    // 마이페이지 내에서 회원 삭제(=탈퇴)
+    @DeleteMapping("/{memberId}")
+    fun deleteMember(@PathVariable memberId: String): ResponseEntity<Map<String, String>> {
+        memberService.remove(memberId)
+        return ResponseEntity.ok(mapOf("message" to "$memberId 정보 삭제 성공"))
+    }
 
     //--------------------------------------------장바구니----------------------------------------------------
+    // Cart 조회
+    @GetMapping("/cart/{memberId}") // 이후 검색 조건에 따라 수정 필요
+    fun read(@PathVariable("memberId") memberId: String): ResponseEntity<CartResponseDTO> {
+        return ResponseEntity.ok(cartService.read(memberId))
+    }
 
+    // CartItem 수량 수정
+    @PutMapping("/cart/{cartItemId}")
+    fun update(@PathVariable("cartItemId")
+               cartItemId: Long,
+               @Validated @RequestBody cartItemUpdateDTO: CartItemUpdateDTO
+    ): ResponseEntity<CartItemResponseDTO> {
+        return ResponseEntity.ok(cartService.update(cartItemUpdateDTO))
+    }
+
+    // CartItem 삭제 (단일 상품 지우기)
+    @DeleteMapping("/cartItem/{cartItemId}")
+    fun deleteCartItem(@PathVariable("cartItemId") cartItemId: Long): ResponseEntity<Map<String, String>> {
+        cartService.delete(cartItemId)
+        return ResponseEntity.ok(mapOf("result" to "success"))
+    }
+
+    // Cart 삭제 (장바구니 비우기)
+    @DeleteMapping("/cart/{cartId}")
+    fun deleteCart(@PathVariable("cartId") cartId: Long): ResponseEntity<Map<String, String>> {
+        cartService.deleteCart(cartId)
+        return ResponseEntity.ok(mapOf("result" to "success"))
+    }
 
     //---------------------------------------------주문------------------------------------------------------
     @PostMapping("/order")
@@ -59,7 +120,6 @@ class MypageController (
     }
 
     //---------------------------------------------리뷰------------------------------------------------------
-
     @PostMapping("/review")
     fun createReview(@RequestBody reviewRequestDTO: ReviewRequestDTO): ResponseEntity<ReviewResponseDTO>? {
         return ResponseEntity.ok(reviewService.createReview(reviewRequestDTO))
@@ -78,4 +138,5 @@ class MypageController (
         reviewService.delete(reviewId)
         return ResponseEntity.ok(mapOf("message" to "Review deleted"))
     }
+
 }

@@ -1,35 +1,52 @@
 package edu.example.dev_3_5_cc.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import edu.example.dev_3_5_cc.dto.PageRequestDTO
 import edu.example.dev_3_5_cc.dto.board.BoardRequestDTO
 import edu.example.dev_3_5_cc.dto.board.BoardUpdateDTO
-import edu.example.dev_3_5_cc.dto.PageRequestDTO
 import edu.example.dev_3_5_cc.entity.Category
-import edu.example.dev_3_5_cc.entity.QBoard.board
 import jakarta.persistence.EntityNotFoundException
 import jakarta.transaction.Transactional
 import org.hibernate.query.sqm.tree.SqmNode.log
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.annotation.Commit
+import org.springframework.http.RequestEntity.post
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity
+import org.springframework.test.context.TestPropertySource
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.context.WebApplicationContext
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import java.awt.PageAttributes
+
 
 @SpringBootTest
+@TestPropertySource(locations = ["classpath:application-test.properties"])
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class BoardServiceTest {
     @Autowired
     lateinit var boardService: BoardService
 
     @Test
     @Transactional
-    @Commit
     fun testInsert(){
         val boardRequestDTO = BoardRequestDTO().apply {
-            memberId = "5"
+            memberId = "user2"
             title = "new title2"
             description = "new description2"
-            category = Category.TIP
+            category = Category.GENERAL
         }
+
         boardService.createBoard(boardRequestDTO).apply {
             assertEquals("new title2", title)
         }
@@ -38,7 +55,7 @@ class BoardServiceTest {
     @Test
     @Transactional
     fun read(){
-        val boardId = 7L
+        val boardId = 1L
         boardService.readBoard(boardId).apply {
             assertNotNull(this)
         }
@@ -46,10 +63,9 @@ class BoardServiceTest {
 
     @Test
     @Transactional
-    @Commit
     fun modify(){
         val boardUpdateDTO = BoardUpdateDTO().apply {
-            boardId = 7L
+            boardId = 2L
             title = "title modified"
             description = "description modified"
             category = Category.NOTICE
@@ -63,10 +79,9 @@ class BoardServiceTest {
 
     @Test
     @Transactional
-    @Commit
     fun delete(){
         try {
-            val boardId = 7L
+            val boardId = 3L
             boardService.delete(boardId)
         }catch (e : EntityNotFoundException){
             log.info("EntityNotFoundException message: ${e.message}")
@@ -90,7 +105,7 @@ class BoardServiceTest {
     @Test
     @Transactional
     fun testListByMemberId(){
-        val memberId = "5"
+        val memberId = "user1"
         boardService.listByMemberId(memberId).run {
             assertNotNull(this)
 
@@ -98,6 +113,6 @@ class BoardServiceTest {
                 println(board.boardId)
             }
         }
-
     }
+
 }

@@ -179,7 +179,7 @@ function detailBoard(id) {
                 </div>
                 <div>
                     <div id="member-${data.memberId}" class="image-td">${data.memberId}</div>
-                    <div>${createdAt}</div>
+                    <div>조회수 ${data.viewCount} | ${createdAt}</div>
                 </div>
                 <div class="board-detail-desc">
                     <div>${imagesHtml}</div>
@@ -236,13 +236,13 @@ function detailBoard(id) {
             data.replies.forEach(reply => {
                 const replyContent = document.createElement('div');
                 replyContent.innerHTML = `
-                    <div id="reply-${reply.memberId}" class="image-td">${reply.memberId}</div>
+                    <div id="reply-${reply.memberId}-${reply.replyId}" class="image-td">${reply.memberId}</div>
                     <div>${reply.content}</div>
                 `;
 
                 fetchReadImage(reply.memberId)
                     .then(imgTag => {
-                        const memberCell = row.querySelector(`#reply-${reply.memberId}`);
+                        const memberCell = row.querySelector(`#reply-${reply.memberId}-${reply.replyId}`);
                         memberCell.innerHTML = `${imgTag} ${reply.memberId}`;
                     })
                     .catch(error => {
@@ -251,22 +251,6 @@ function detailBoard(id) {
                 replyDiv.appendChild(replyContent);
             });
         }
-        // fetchReadReply(data.boardId).then(data => {
-        //     const replyDiv = row.querySelector('#reply-div');
-        //
-        //     if (Array.isArray(data) && data.length > 0) {
-        //         const totalReplyDiv = row.querySelector('#totalReply');
-        //         totalReplyDiv.innerHTML = `댓글 [${data.length}]개`
-        //         data.forEach(reply => {
-        //             const replyContent = document.createElement('div');
-        //             replyContent.innerHTML = `
-        //                 <div>${reply.memberId}</div>
-        //                 <div>${reply.content}</div>
-        //             `;
-        //             replyDiv.appendChild(replyContent);
-        //         });
-        //     }
-        // }).catch();
 
         const replyCreate = row.querySelector('.reply-create-btn');
         replyCreate.addEventListener('click', () => {
@@ -402,23 +386,23 @@ addBoardBtn.addEventListener('click', () => {
 
     const createBtn = row.querySelector('#create-btn');
     createBtn.addEventListener('click', () => {
-       const board = {
-           memberId: tokenMemberId,
-           title: document.getElementById('input-title').value,
-           description: document.getElementById('input-description').value,
-           category: 'GENERAL'
-       };
+        const board = {
+            memberId: tokenMemberId,
+            title: document.getElementById('input-title').value,
+            description: document.getElementById('input-description').value,
+            category: 'GENERAL'
+        };
         const images = document.getElementById('input-files').files;
 
-       fetchCreateBoard(board).then( data=> {
-           if (images.length > 0) {
-               return fetchUpBoardImage(data.boardId, images);
-           }
-           return Promise.resolve();
-       }).then(()=>{
-           alert('등록완료');
-           window.location.href = "/app/board";
-       });
+        fetchCreateBoard(board).then( data=> {
+            if (images.length > 0) {
+                return fetchUpBoardImage(data.boardId, images);
+            }
+            return Promise.resolve();
+        }).then(()=>{
+            alert('등록완료');
+            window.location.href = "/app/board";
+        });
     });
 
     const cancelBtn = row.querySelector('#cancel-btn');

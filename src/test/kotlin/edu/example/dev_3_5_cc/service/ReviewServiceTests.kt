@@ -40,7 +40,7 @@ class ReviewServiceTests {
     fun testInsert() {
         // 테스트용 member와 product 엔티티를 먼저 저장
         val member = memberRepository.save(Member(memberId = "testMember", name = "John Doe"))
-        val product = productRepository.save(Product(pName = "Sample Product", price = 1000L))
+        val product = productRepository.save(Product(pname = "Sample Product", price = 1000L))
 
         val reviewRequestDTO = ReviewRequestDTO(
             memberId = member.memberId!!,
@@ -64,7 +64,7 @@ class ReviewServiceTests {
     fun testRead() {
         // 테스트용 member와 product 엔티티를 먼저 저장
         val member = memberRepository.save(Member(memberId = "testMember", name = "John Doe"))
-        val product = productRepository.save(Product(pName = "Sample Product", price = 1000L))
+        val product = productRepository.save(Product(pname = "Sample Product", price = 1000L))
 
         // 테스트용 리뷰 엔티티를 저장하여 reviewId 획득
         val reviewRequestDTO = ReviewRequestDTO(
@@ -93,7 +93,7 @@ class ReviewServiceTests {
     fun testUpdate() {
         // 테스트용 데이터 준비
         val member = memberRepository.save(Member(memberId = "testMember", name = "John Doe"))
-        val product = productRepository.save(Product(pName = "Sample Product", price = 1000L))
+        val product = productRepository.save(Product(pname = "Sample Product", price = 1000L))
 
         // 리뷰 생성 및 저장
         val reviewRequestDTO = ReviewRequestDTO(
@@ -124,7 +124,7 @@ class ReviewServiceTests {
     fun testDelete() {
         // 리뷰 생성 및 삭제 수행
         val member = memberRepository.save(Member(memberId = "testMember", name = "John Doe"))
-        val product = productRepository.save(Product(pName = "Sample Product", price = 1000L))
+        val product = productRepository.save(Product(pname = "Sample Product", price = 1000L))
 
         val reviewRequestDTO = ReviewRequestDTO(
             memberId = member.memberId!!,
@@ -193,7 +193,7 @@ class ReviewServiceTests {
     @Order(7)
     fun testGetListByProductId() {
         val product = productRepository.findById(1L).orElseGet {
-            productRepository.save(Product(pName = "Test Product", price = 1000L))
+            productRepository.save(Product(pname = "Test Product", price = 1000L))
         }
 
         val pageRequestDTO = PageRequestDTO(page = 1, size = 100)  // Size를 100으로 설정해 100개의 리뷰가 한 번에 조회되도록 설정

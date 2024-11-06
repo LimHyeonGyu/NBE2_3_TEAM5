@@ -3,15 +3,20 @@ package edu.example.dev_3_5_cc.repository
 import edu.example.dev_3_5_cc.entity.Reply
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.annotation.Commit
+import org.springframework.test.context.TestPropertySource
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @SpringBootTest
+@TestPropertySource(locations = ["classpath:application-test.properties"])
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ReplyRepositoryTest {
     @Autowired
     lateinit var replyRepository: ReplyRepository
@@ -24,11 +29,10 @@ class ReplyRepositoryTest {
 
     @Test
     @Transactional
-    @Commit
     fun testInsert(){
         val reply = Reply().apply {
-            val foundBoard = boardRepository.findByIdOrNull(4) ?: throw NoSuchElementException("No found Board")
-            val foundMember = memberRepository.findByIdOrNull("11") ?: throw NoSuchElementException("No found Member")
+            val foundBoard = boardRepository.findByIdOrNull(3) ?: throw NoSuchElementException("No found Board")
+            val foundMember = memberRepository.findByIdOrNull("user5") ?: throw NoSuchElementException("No found Member")
 
             board = foundBoard
             member = foundMember
@@ -51,7 +55,6 @@ class ReplyRepositoryTest {
 
     @Test
     @Transactional
-    @Commit
     fun testUpdate(){
         val replyId = 1L
         val reply = replyRepository.findByIdOrNull(replyId) ?: throw NoSuchElementException("No reply found")
@@ -68,7 +71,6 @@ class ReplyRepositoryTest {
 
     @Test
     @Transactional
-    @Commit
     fun testDelete(){
         val replyId = 5L
         replyRepository.deleteById(replyId)
@@ -80,7 +82,7 @@ class ReplyRepositoryTest {
     @Test
     @Transactional
     fun testFindAllByMember(){
-        val memberId = "11"
+        val memberId = "user1"
         val replies = replyRepository.findAllByMember(memberId)
 
         replies?.forEach {

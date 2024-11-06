@@ -2,9 +2,15 @@ package edu.example.dev_3_5_cc.repository
 
 import edu.example.dev_3_5_cc.entity.Reply
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Query
 
 interface ReplyRepository : JpaRepository<Reply, Long> {
-    @Query("SELECT r FROM Reply r WHERE r.member.memberId = :memberId")
-    fun findAllByMember(memberId: String): List<Reply>
+
+    fun findAllByMember_MemberId(memberId: String): List<Reply>
+
+    fun findAllByBoard_BoardId(boardId: Long): List<Reply>
+
+    fun findAllByParent_ReplyId(parentReplyId: Long): List<Reply>
+
+    fun findAllByParentIsNull(): List<Reply>
+
 }

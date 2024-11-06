@@ -1,7 +1,8 @@
 package edu.example.dev_3_5_cc.dto.reply
 
-data class ReplyUpdateDTO (
-    var content : String? = null,
-    var replyId : Long? = null,
-    var memberId : String? = null // 작성자,관리자 등 식별을 위한 필드 추가
+import jakarta.validation.constraints.NotBlank
+
+data class ReplyUpdateDTO(
+    @field:NotBlank(message = "댓글 내용은 필수입니다.")
+    val content: String
 )

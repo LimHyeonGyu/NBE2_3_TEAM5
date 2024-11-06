@@ -9,6 +9,7 @@ import edu.example.dev_3_5_cc.entity.MemberImage
 import edu.example.dev_3_5_cc.exception.MemberException
 import edu.example.dev_3_5_cc.log
 import edu.example.dev_3_5_cc.repository.MemberRepository
+import org.hibernate.query.sqm.tree.SqmNode.log
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
@@ -146,4 +147,15 @@ class MemberService (
 
 }
 
-// password = bCryptPasswordEncoder.encode(memberRequestDTO.password)
+
+
+//// 에러 나는 코드들 ////
+
+//        // MemberRequestDTO -> Member 엔티티로 매핑
+//        val member = modelMapper.map(memberRequestDTO, Member::class.java).apply {
+//            // 이미지와 역할 기본값 설정
+//            if (this.image == null) this.image = MemberImage("default_avatar.png")
+//            if (this.role == null) this.role = "USER"
+//        }
+
+//        return modelMapper.map(savedMember, MemberResponseDTO::class.java)

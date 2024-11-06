@@ -11,7 +11,7 @@ import {
     fetchReadProduct,
     fetchReadProductPage,
     fetchUpdateProduct,
-    fetchUpBoardImage, fetchReadBoard, fetchDeleteBoard, fetchReadBoards, fetchReadImage
+    fetchUpBoardImage, fetchReadBoard, fetchDeleteBoard, fetchReadBoards, fetchReadImage, fetchDeleteOrder
 } from './fetch.js';
 
 function parseJwt(token) {
@@ -172,7 +172,7 @@ function addProduct(data) {
         row.id = `product-${product.productId}`;
         row.innerHTML =`
                 <td>${product.productId}</td>
-                <td>${product.pName}</td>
+                <td>${product.pname}</td>
                 <td>${product.price}</td>
                 <td>${product.stock}</td>
                 <td>
@@ -206,7 +206,7 @@ function detailProduct(id) {
                     </div><hr>
                     <div>
                         <label>상품명</label>
-                        <input type="text" id="productName" value="${data.pName}">
+                        <input type="text" id="productName" value="${data.pname}">
                     </div><hr>
                     <div>
                         <label>가격</label>
@@ -262,7 +262,7 @@ function detailProduct(id) {
                 const images = document.getElementById('update-image').files;
                 const product = {
                     productId: data.productId,
-                    pName: document.getElementById('productName').value,
+                    pname: document.getElementById('productName').value,
                     price: document.getElementById('productPrice').value,
                     stock: document.getElementById('productStock').value,
                     description: document.getElementById('productDescription').value
@@ -346,7 +346,7 @@ function createProduct() {
 
     productCreate.addEventListener('click', () => {
         const product = {
-            pName: document.getElementById('productName').value,
+            pname: document.getElementById('productName').value,
             price: document.getElementById('productPrice').value,
             stock: document.getElementById('productStock').value,
             description: document.getElementById('productDescription').value
@@ -433,6 +433,7 @@ function addOrder(data) {
                 <td>${createdAt}</td>
                 <td>${order.status}</td>
                 <td>
+                    <div>
                     <select id="status-select">
                         <option value="" disabled selected hidden>주문 상태 선택</option>
                         <option value="APROVED">APROVED</option>
@@ -440,17 +441,31 @@ function addOrder(data) {
                         <option value="DELIVERED">DELIVERED</option>
                         <option value="SHIPPED">SHIPPED</option>
                     </select>
+                    </div>
+                    <div>
                     <button id="change-status-btn">변경</button>
+                    <button id="order-remove-btn">삭제</button></div>
                 </td>
         `;
         const changeStBtn = row.querySelector('#change-status-btn');
+        const removeBtn = row.querySelector('#order-remove-btn');
+        removeBtn.addEventListener('click', () => {
+            fetchDeleteOrder(order.orderId).then(()=>{
+                return fetchReadOrders();
+            }).then(updatedData => {
+                alert('주문 삭제완료');
+                addOrder(updatedData);
+            }).catch(error => {
+                console.error('Error:', error);
+            });
+        });
         changeStBtn.addEventListener('click', () => {
             const selectElement = row.querySelector('#status-select');
             const selectedStatus = selectElement.value;
             if (selectedStatus !== "") {
                 const changeData = {
                     orderId: order.orderId,
-                    orderStatus: selectedStatus
+                    orderstatus: selectedStatus
                 };
                 console.log(changeData);
                 fetchUpdateOrder(changeData).then( () => {
@@ -460,7 +475,6 @@ function addOrder(data) {
             } else {
                 alert('주문 상태를 선택해 주세요.');
             }
-
         });
 
         tbody.appendChild(row);

@@ -4,94 +4,168 @@ import edu.example.dev_3_5_cc.dto.reply.ReplyListDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyRequestDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyResponseDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyUpdateDTO
+import edu.example.dev_3_5_cc.entity.QReply.reply
 import edu.example.dev_3_5_cc.entity.Reply
 import edu.example.dev_3_5_cc.exception.BoardException
 import edu.example.dev_3_5_cc.exception.JWTException
 import edu.example.dev_3_5_cc.exception.MemberException
 import edu.example.dev_3_5_cc.exception.ReplyException
 import edu.example.dev_3_5_cc.repository.BoardRepository
-import edu.example.dev_3_5_cc.repository.MemberRepository
 import edu.example.dev_3_5_cc.repository.ReplyRepository
 import edu.example.dev_3_5_cc.util.SecurityUtil
 import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-
 
 @Service
 @Transactional
 class ReplyService(
     private val replyRepository: ReplyRepository,
-    private val memberRepository: MemberRepository, // 얘네는 필요없는 것 같긴 한데 나중에 수정하면서 필요할 수도 있을 것 같아 냅뒀습니다.
-    private val boardRepository: BoardRepository,   // 끝까지 필요없으면 나중에 지울 예정입니다
+    private val boardRepository: BoardRepository,
     private val securityUtil: SecurityUtil
 ) {
 
-    fun createReply(replyRequestDTO: ReplyRequestDTO) : ReplyResponseDTO{
-        val member = memberRepository.findByIdOrNull(replyRequestDTO.memberId) ?: throw MemberException.NOT_FOUND.get()
-        val board = boardRepository.findByIdOrNull(replyRequestDTO.boardId) ?: throw BoardException.NOT_FOUND.get()
+    @Caching(
+        evict = [
+            CacheEvict(value = ["board"], key = "#replyRequestDTO.boardId"), // 특정 boardId의 board 캐시 무효화
+            CacheEvict(value = ["replyList"], allEntries = true) // replyList 캐시의 모든 항목 무효화
+        ]
+    )
+    fun createReply(replyRequestDTO: ReplyRequestDTO): ReplyResponseDTO {
+        // 현재 인증된 사용자 가져오기
+        val member = securityUtil.getCurrentUser()
 
-        val reply = replyRequestDTO.toEntity(member, board)
+        // 게시판 존재 여부 확인
+        val board = boardRepository.findByIdOrNull(replyRequestDTO.boardId)
+            ?: throw BoardException.NOT_FOUND.get()
 
+        // 부모 댓글이 지정된 경우, 부모 댓글 존재 여부 확인
+        val parentReply = replyRequestDTO.parentReplyId?.let { parentId ->
+            replyRepository.findByIdOrNull(parentId) ?: throw ReplyException.NOT_FOUND.get()
+        }
+
+        // 새로운 댓글 생성
+        val reply = Reply(
+            content = replyRequestDTO.content,
+            member = member,
+            board = board,
+            parent = parentReply
+        )
+
+        // 댓글 저장
         val savedReply = replyRepository.save(reply)
         return ReplyResponseDTO(savedReply)
     }
 
-    // 이거 2차 프로젝트에도 통째로 주석처리 돼있길래 해뒀습니다
-//    fun readReply(replyId : Long) : ReplyResponseDTO{
-//        val reply = replyRepository.findByIdOrNull(replyId) ?: throw ReplyException.NOT_FOUND.get()
-//
-//        return ReplyResponseDTO(reply)
-//    }
+    fun updateReply(replyId: Long, content: String): ReplyResponseDTO {
+        val reply = replyRepository.findByIdOrNull(replyId)?.also {
+            it.board?.boardId?.let { boardId -> evictBoardCache(boardId) }
+        } ?: throw ReplyException.NOT_FOUND.get()
 
-    fun updateReply(replyUpdateDTO: ReplyUpdateDTO) : ReplyResponseDTO{
-        val reply = replyRepository.findByIdOrNull(replyUpdateDTO.replyId) ?: throw ReplyException.NOT_FOUND.get()
+        // 권한 확인
+        val currentUser = securityUtil.getCurrentUser()
+        if (currentUser.memberId != reply.member?.memberId && securityUtil.getCurrentUserRole() != "ROLE_ADMIN") {
+            throw JWTException("권한이 없습니다")
 
-        try {
-            with(reply){
-                content = replyUpdateDTO.content
-            }
-        }catch(e: Exception){
-            throw ReplyException.NOT_UPDATED.get()
         }
+
+        // 댓글 내용 업데이트
+        reply.content = content
 
         return ReplyResponseDTO(reply)
     }
 
-    fun deleteReply(replyId : Long){
-        val reply = replyRepository.findByIdOrNull(replyId) ?: throw ReplyException.NOT_FOUND.get()
 
-        try {
-            replyRepository.delete(reply)
-        }catch(e: Exception){
-            throw ReplyException.NOT_DELETED.get()
+    fun deleteReply(replyId : Long){
+        val reply = replyRepository.findByIdOrNull(replyId)?.also {
+            it.board?.boardId?.let { boardId -> evictBoardCache(boardId) }
+        } ?: throw ReplyException.NOT_FOUND.get()
+
+        // 권한 확인
+        val currentUser = securityUtil.getCurrentUser()
+        if (currentUser.memberId != reply.member?.memberId &&
+            currentUser.memberId != reply.board?.member?.memberId &&
+            securityUtil.getCurrentUserRole() != "ROLE_ADMIN"
+        ) {
+            throw JWTException("권한이 없습니다")
         }
+
+        // 댓글 삭제
+        replyRepository.delete(reply)
     }
 
-    fun listByMemberId(memberId: String): List<ReplyListDTO>{
-        val replies : List<Reply> = replyRepository.findAllByMember(memberId)
+    /**
+     * 특정 사용자가 작성한 모든 댓글 조회
+     *
+     * @param memberId 작성자의 회원 ID
+     * @return 작성자가 작성한 댓글 리스트
+     */
+    fun listByMemberId(memberId: String): List<ReplyListDTO> {
+        val replies: List<Reply> = replyRepository.findAllByMember_MemberId(memberId)
 
-        if(replies.isEmpty()) throw ReplyException.NOT_FOUND.get()
+        if (replies.isEmpty()) throw ReplyException.NOT_FOUND.get()
 
         return replies.map { ReplyListDTO(it) }
     }
 
-    fun checkDeleteReplyAuthorization(replyId : Long) : Boolean{
+
+    @Cacheable(value = ["replayList"], key = "#boardId")
+    fun listByBoardId(boardId: Long): List<ReplyListDTO> {
+        val replies: List<Reply> = replyRepository.findAllByBoard_BoardId(boardId)
+        if (replies.isEmpty()) throw ReplyException.NOT_FOUND.get()
+
+        return replies.map { ReplyListDTO(it) }
+    }
+
+    /**
+     * 특정 부모 댓글에 속한 모든 자식 댓글(대댓글) 조회
+     *
+     * @param parentReplyId 부모 댓글 ID
+     * @return 해당 부모 댓글의 자식 댓글 리스트
+     */
+    fun listByParentReplyId(parentReplyId: Long): List<ReplyListDTO> {
+        val childReplies: List<Reply> = replyRepository.findAllByParent_ReplyId(parentReplyId)
+
+        if (childReplies.isEmpty()) throw ReplyException.NOT_FOUND.get()
+
+        return childReplies.map { ReplyListDTO(it) }
+    }
+
+    /**
+     * 댓글 삭제 권한 확인 메서드
+     *
+     * @param replyId 삭제할 댓글 ID
+     * @return 권한이 있는 경우 true
+     */
+    fun checkDeleteReplyAuthorization(replyId: Long): Boolean {
         val reply = replyRepository.findByIdOrNull(replyId) ?: throw ReplyException.NOT_FOUND.get()
         val currentUser = securityUtil.getCurrentUser()
 
         // 관리자이거나, 댓글 작성자이거나, 해당 댓글이 달린 게시판의 작성자인지 확인
-        if (currentUser.memberId.equals(reply.member?.memberId) ||
-            currentUser.memberId.equals(
-                reply.board?.member?.memberId
-            ) || "ROLE_ADMIN" == securityUtil.getCurrentUserRole()
+        return if (currentUser.memberId == reply.member?.memberId ||
+            currentUser.memberId == reply.board?.member?.memberId ||
+            securityUtil.getCurrentUserRole() == "ROLE_ADMIN"
         ) {
-            return true
+            true
+        } else {
+            throw JWTException("권한이 없습니다")
         }
-        // 원래에서는 AccessDeniedException이 있는데 이걸 만들려고 보니 자꾸 오류가 나서 그냥 저렇게 해뒀습니다
-        // 권한이 없는 경우 예외 발생
-        throw JWTException("권한이 없습니다")
     }
 
-
 }
+
+@Caching(
+    evict = [
+        CacheEvict(value = ["board"], key = "#boardId"), // 특정 boardId의 board 캐시 무효화
+        CacheEvict(value = ["replyList"], allEntries = true) // replyList 캐시의 모든 항목 무효화
+    ]
+)
+fun evictBoardCache(boardId: Long) {
+    // 단순히 캐시를 제거하기 위한 빈 함수
+}
+
+

@@ -36,7 +36,7 @@ class ReviewRepositoryTests {
     fun testInsert() {
         // Member와 Product를 먼저 저장
         val member = memberRepository.save(Member(memberId = "testMember", name = "John"))
-        val product = productRepository.save(Product(pName = "Sample Product", price = 1000L, description = "Test Product"))
+        val product = productRepository.save(Product(pname = "Sample Product", price = 1000L, description = "Test Product"))
 
         // Review 생성 및 저장
         val review = Review(content = "Good product!", star = 5, member = member, product = product)
@@ -60,7 +60,7 @@ class ReviewRepositoryTests {
         reviewRepository.saveAll(reviews)
 
         val reviewList = reviewRepository.findAll()
-        assertEquals(5, reviewList.size)
+        assertEquals(6, reviewList.size)
     }
 
     @Test

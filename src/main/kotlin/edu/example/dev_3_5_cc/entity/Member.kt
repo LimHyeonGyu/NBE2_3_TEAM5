@@ -43,32 +43,8 @@ data class Member (
         this.image = memberImage
     }
 
-    fun clearImage() { //
-        this.image = null
-    }
-
-    fun changeEmail(email: String?) {
-        this.email = email
-    }
-
-    fun changePhoneNumber(phoneNumber: String?) {
-        this.phoneNumber = phoneNumber
-    }
-
-    fun changeName(name: String?) {
-        this.name = name
-    }
-
-    fun changePassword(password: String?) {
-        this.password = password
-    }
-
-    fun changeAddress(address: String?) {
-        this.address = address
-    }
-
-    fun changeRole(role: String?) {
-        this.role = role
+    fun clearImage() {
+        this.image = MemberImage("default_avatar.png")
     }
 
 }

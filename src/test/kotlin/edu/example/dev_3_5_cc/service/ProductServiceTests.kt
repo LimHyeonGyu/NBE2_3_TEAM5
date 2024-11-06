@@ -29,7 +29,7 @@ class ProductServiceTests {
     @Order(1)
     fun create() {
         val productRequestDTO = ProductRequestDTO(
-            pName = "SERVICE TEST1",
+            pname = "SERVICE TEST1",
             price = 10000,
             description = "SERVICE TEST CREATE",
             stock = 10,
@@ -40,7 +40,7 @@ class ProductServiceTests {
         println(savedProduct)
 
         val productRequestDTO2 = ProductRequestDTO(
-            pName = "SERVICE TEST2",
+            pname = "SERVICE TEST2",
             price = 20000,
             description = "NO images",
             stock = 10
@@ -56,7 +56,7 @@ class ProductServiceTests {
         val productId = 1L
 
         productService.read(productId).also {
-            assertEquals("SERVICE TEST1", it.pName)
+            assertEquals("SERVICE TEST1", it.pname)
         }
     }
 
@@ -65,13 +65,13 @@ class ProductServiceTests {
     fun update() {
         val productUpdateDTO = ProductUpdateDTO(
             productId = 2L,
-            pName = "UPDATE TEST",
+            pname = "UPDATE TEST",
             price = 20000,
             description = "UPDATE TEST UPDATE",
             stock = 10
         )
         productService.update(productUpdateDTO).run {
-            assertEquals("UPDATE TEST", pName)
+            assertEquals("UPDATE TEST", pname)
             assertEquals("UPDATE TEST UPDATE", description)
         }
     }
@@ -92,7 +92,7 @@ class ProductServiceTests {
     fun testData() {
         for(i in 3..100) {
             val productRequestDTO = ProductRequestDTO(
-                pName = "SERVICE TEST$i",
+                pname = "SERVICE TEST$i",
                 price = 10000,
                 description = "SERVICE TEST CREATE$i",
                 stock = 10,
@@ -119,13 +119,11 @@ class ProductServiceTests {
     @Test
     @Order(7)
     fun getListByPname() {
-        val pName = "TEST"
+        val pname = "TEST"
 
-        productService.getListByPname(pName).run {
+        productService.getListByPname(pname).run {
             assertEquals(100, this.size)
         }
     }
-
-
 
 }
