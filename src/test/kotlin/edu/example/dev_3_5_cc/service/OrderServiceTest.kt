@@ -46,7 +46,7 @@ class OrderServiceTest {
 
         for(i in 1 .. 10) {
             product = Product().apply {
-                pName = "Test Product $i"
+                pname = "Test Product $i"
                 price = 100L
                 description = "Test Description $i"
                 stock = 10

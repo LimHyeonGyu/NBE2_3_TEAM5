@@ -4,6 +4,7 @@ import edu.example.dev_3_5_cc.dto.reply.ReplyListDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyRequestDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyResponseDTO
 import edu.example.dev_3_5_cc.dto.reply.ReplyUpdateDTO
+import edu.example.dev_3_5_cc.entity.QReply.reply
 import edu.example.dev_3_5_cc.entity.Reply
 import edu.example.dev_3_5_cc.exception.BoardException
 import edu.example.dev_3_5_cc.exception.JWTException
@@ -13,6 +14,10 @@ import edu.example.dev_3_5_cc.repository.BoardRepository
 import edu.example.dev_3_5_cc.repository.ReplyRepository
 import edu.example.dev_3_5_cc.util.SecurityUtil
 import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -24,12 +29,12 @@ class ReplyService(
     private val securityUtil: SecurityUtil
 ) {
 
-    /**
-     * 댓글 생성 메서드
-     *
-     * @param replyRequestDTO 댓글 생성 요청 DTO
-     * @return 생성된 댓글의 응답 DTO
-     */
+    @Caching(
+        evict = [
+            CacheEvict(value = ["board"], key = "#replyRequestDTO.boardId"), // 특정 boardId의 board 캐시 무효화
+            CacheEvict(value = ["replyList"], allEntries = true) // replyList 캐시의 모든 항목 무효화
+        ]
+    )
     fun createReply(replyRequestDTO: ReplyRequestDTO): ReplyResponseDTO {
         // 현재 인증된 사용자 가져오기
         val member = securityUtil.getCurrentUser()
@@ -56,20 +61,16 @@ class ReplyService(
         return ReplyResponseDTO(savedReply)
     }
 
-    /**
-     * 댓글 업데이트 메서드
-     *
-     * @param replyUpdateDTO 댓글 업데이트 요청 DTO
-     * @return 업데이트된 댓글의 응답 DTO
-     */
     fun updateReply(replyId: Long, content: String): ReplyResponseDTO {
-        val reply = replyRepository.findByIdOrNull(replyId)
-            ?: throw ReplyException.NOT_FOUND.get()
+        val reply = replyRepository.findByIdOrNull(replyId)?.also {
+            it.board?.boardId?.let { boardId -> evictBoardCache(boardId) }
+        } ?: throw ReplyException.NOT_FOUND.get()
 
         // 권한 확인
         val currentUser = securityUtil.getCurrentUser()
         if (currentUser.memberId != reply.member?.memberId && securityUtil.getCurrentUserRole() != "ROLE_ADMIN") {
             throw JWTException("권한이 없습니다")
+
         }
 
         // 댓글 내용 업데이트
@@ -78,14 +79,11 @@ class ReplyService(
         return ReplyResponseDTO(reply)
     }
 
-    /**
-     * 댓글 삭제 메서드
-     *
-     * @param replyId 삭제할 댓글 ID
-     */
-    fun deleteReply(replyId: Long) {
-        val reply = replyRepository.findByIdOrNull(replyId)
-            ?: throw ReplyException.NOT_FOUND.get()
+
+    fun deleteReply(replyId : Long){
+        val reply = replyRepository.findByIdOrNull(replyId)?.also {
+            it.board?.boardId?.let { boardId -> evictBoardCache(boardId) }
+        } ?: throw ReplyException.NOT_FOUND.get()
 
         // 권한 확인
         val currentUser = securityUtil.getCurrentUser()
@@ -114,15 +112,10 @@ class ReplyService(
         return replies.map { ReplyListDTO(it) }
     }
 
-    /**
-     * 특정 게시판에 속한 모든 댓글 조회
-     *
-     * @param boardId 게시판 ID
-     * @return 해당 게시판의 댓글 리스트
-     */
+
+    @Cacheable(value = ["replayList"], key = "#boardId")
     fun listByBoardId(boardId: Long): List<ReplyListDTO> {
         val replies: List<Reply> = replyRepository.findAllByBoard_BoardId(boardId)
-
         if (replies.isEmpty()) throw ReplyException.NOT_FOUND.get()
 
         return replies.map { ReplyListDTO(it) }
@@ -162,4 +155,17 @@ class ReplyService(
             throw JWTException("권한이 없습니다")
         }
     }
+
 }
+
+@Caching(
+    evict = [
+        CacheEvict(value = ["board"], key = "#boardId"), // 특정 boardId의 board 캐시 무효화
+        CacheEvict(value = ["replyList"], allEntries = true) // replyList 캐시의 모든 항목 무효화
+    ]
+)
+fun evictBoardCache(boardId: Long) {
+    // 단순히 캐시를 제거하기 위한 빈 함수
+}
+
+

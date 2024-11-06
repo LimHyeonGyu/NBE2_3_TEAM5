@@ -17,9 +17,7 @@ data class Product(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val productId: Long? = null,
 
-    @JsonProperty("pName")
-    @Column(name = "p_name")
-    var pName: String? = null,
+    var pname: String? = null,
 
     var price: Long? = null,
     var description: String? = null,

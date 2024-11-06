@@ -27,7 +27,7 @@ class ProductSearchImpl: QuerydslRepositorySupport(Product::class.java), Product
             Projections.fields(
                 ProductListDTO::class.java,
                 product.productId,
-                product.pName,
+                product.pname,
                 product.price,
                 product.stock,
                 productImage.filename.`as`("pimage")

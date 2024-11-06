@@ -11,7 +11,7 @@ import {
     fetchReadProduct,
     fetchReadProductPage,
     fetchUpdateProduct,
-    fetchUpBoardImage, fetchReadBoard, fetchDeleteBoard, fetchReadBoards, fetchReadImage
+    fetchUpBoardImage, fetchReadBoard, fetchDeleteBoard, fetchReadBoards, fetchReadImage, fetchDeleteOrder
 } from './fetch.js';
 
 function parseJwt(token) {
@@ -433,6 +433,7 @@ function addOrder(data) {
                 <td>${createdAt}</td>
                 <td>${order.status}</td>
                 <td>
+                    <div>
                     <select id="status-select">
                         <option value="" disabled selected hidden>주문 상태 선택</option>
                         <option value="APROVED">APROVED</option>
@@ -440,10 +441,24 @@ function addOrder(data) {
                         <option value="DELIVERED">DELIVERED</option>
                         <option value="SHIPPED">SHIPPED</option>
                     </select>
+                    </div>
+                    <div>
                     <button id="change-status-btn">변경</button>
+                    <button id="order-remove-btn">삭제</button></div>
                 </td>
         `;
         const changeStBtn = row.querySelector('#change-status-btn');
+        const removeBtn = row.querySelector('#order-remove-btn');
+        removeBtn.addEventListener('click', () => {
+            fetchDeleteOrder(order.orderId).then(()=>{
+                return fetchReadOrders();
+            }).then(updatedData => {
+                alert('주문 삭제완료');
+                addOrder(updatedData);
+            }).catch(error => {
+                console.error('Error:', error);
+            });
+        });
         changeStBtn.addEventListener('click', () => {
             const selectElement = row.querySelector('#status-select');
             const selectedStatus = selectElement.value;
@@ -460,7 +475,6 @@ function addOrder(data) {
             } else {
                 alert('주문 상태를 선택해 주세요.');
             }
-
         });
 
         tbody.appendChild(row);

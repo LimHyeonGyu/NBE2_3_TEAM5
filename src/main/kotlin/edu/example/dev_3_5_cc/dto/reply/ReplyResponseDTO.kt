@@ -1,6 +1,7 @@
 package edu.example.dev_3_5_cc.dto.reply
 
 import edu.example.dev_3_5_cc.entity.Reply
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class ReplyResponseDTO(
@@ -12,7 +13,7 @@ data class ReplyResponseDTO(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val likeCount: Int = 0 // 좋아요 수
-) {
+) : Serializable {
     constructor(reply: Reply) : this(
         replyId = reply.replyId!!,
         memberId = reply.member!!.memberId!!,

@@ -2,6 +2,7 @@ package edu.example.dev_3_5_cc.dto.review
 
 import edu.example.dev_3_5_cc.entity.Review
 import jakarta.validation.constraints.NotBlank
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class ReviewResponseDTO(
@@ -13,7 +14,7 @@ data class ReviewResponseDTO(
     val star: Int? = null,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null
-) {
+): Serializable {
     constructor(review: Review) : this(
         reviewId = review.reviewId,
         memberId = review.member?.memberId,

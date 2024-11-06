@@ -53,11 +53,10 @@ class MemberService (
         val member = memberRepository.findByIdOrNull(memberId) ?: throw MemberException.NOT_FOUND.get()
 
         with(member) {
-            // null이 아닌 필드만 수정
             memberUpdateDTO.email?.let { email = it }
             memberUpdateDTO.phoneNumber?.let { phoneNumber = it }
             memberUpdateDTO.name?.let { name = it }
-            memberUpdateDTO.password?.let { password = it }
+            memberUpdateDTO.password?.let { password = bCryptPasswordEncoder.encode(it) }  // 비밀번호 암호화 추가
             memberUpdateDTO.sex?.let { sex = it }
             memberUpdateDTO.address?.let { address = it }
 
@@ -69,6 +68,7 @@ class MemberService (
         return MemberResponseDTO(updatedMember).also { log.info("최종 수정된 회원 정보: $it") }
     }
 
+
     fun adminModify(memberId: String, memberUpdateDTO: MemberUpdateDTO): MemberResponseDTO {
         val member = memberRepository.findByIdOrNull(memberId)
             ?: throw MemberException.NOT_FOUND.get()
@@ -78,7 +78,7 @@ class MemberService (
             memberUpdateDTO.email?.let { email = it }
             memberUpdateDTO.phoneNumber?.let { phoneNumber = it }
             memberUpdateDTO.name?.let { name = it }
-            memberUpdateDTO.password?.let { password = it }
+            memberUpdateDTO.password?.let { password = bCryptPasswordEncoder.encode(it) }  // 비밀번호 암호화 추가
             memberUpdateDTO.sex?.let { sex = it }
             memberUpdateDTO.address?.let { address = it }
             memberUpdateDTO.role?.let { role = it } // 관리자만 수정 가능한 필드
