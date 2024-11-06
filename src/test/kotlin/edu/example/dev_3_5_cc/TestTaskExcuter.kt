@@ -55,10 +55,9 @@ class TestTaskExcuter(
         for (i in 1..3) {
             val member = memberRepository.findByIdOrNull("user${i + 1}") // 각 댓글에 연결할 멤버
             val board = boardRepository.findByIdOrNull(i.toLong()) // 각 댓글에 연결할 게시글
-            val reply = Reply().apply {
+            val reply = Reply(content = "이것은 게시글 ${board?.boardId}에 대한 사용자 ${member?.memberId}의 댓글입니다.").apply {
                 this.member = member
                 this.board = board
-                content = "이것은 게시글 ${board?.boardId}에 대한 사용자 ${member?.memberId}의 댓글입니다."
                 println("$i 번째 댓글 작성")
             }
             board?.replies?.add(reply) // 양방향 관계 설정

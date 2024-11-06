@@ -123,6 +123,8 @@ class MemberService (
 
     fun findOrRegisterKakaoMember(kakaoProfile: KakaoProfile): Member {
         val memberId = kakaoProfile.id.toString()
+        val image = kakaoProfile.properties?.profileImage.toString()
+
         // 가입자 체크
         val existingMemberResponse = memberRepository.findById(memberId)
         log.info("memberId 조회 결과: ${existingMemberResponse.isPresent}")
@@ -135,6 +137,9 @@ class MemberService (
             //val encodedPassword = bCryptPasswordEncoder.encode(cosKey)
             val newMemberRequest = MemberRequestDTO().apply {
                 this.memberId = memberId
+                this.password = memberId
+                this.image = image
+
                 //this.password = encodedPassword
             }
             // 새로운 회원 등록
