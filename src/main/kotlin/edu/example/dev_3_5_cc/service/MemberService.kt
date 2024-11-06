@@ -25,37 +25,54 @@ class MemberService (
     private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
 
-    @Value("\${cos.key}")
-    lateinit var cosKey: String
-
     fun register(memberRequestDTO: MemberRequestDTO): MemberResponseDTO {
-        // MemberRequestDTO -> Member 엔티티로 매핑
-        val member = modelMapper.map(memberRequestDTO, Member::class.java).apply {
-            // 이미지와 역할 기본값 설정
-            if (this.image == null) this.image = MemberImage("default_avatar.png")
-            if (this.role == null) this.role = "USER"
+        if (memberRepository.findByIdOrNull(memberRequestDTO.memberId) != null) {
+            throw MemberException.DUPLICATE.get()
         }
 
+        val member = memberRequestDTO.toEntity(bCryptPasswordEncoder)
+        log.info("날짜, role, image  값 없는 회원 정보 = $member")
+        if (member.role == null) { member.role = "ROLE_USER" }
+        if (member.image == null) { member.image = MemberImage("default_avatar.png") }
 
-        // Member 엔티티를 DB에 저장
         val savedMember = memberRepository.save(member)
+        log.info("날짜, role, image 값 있는 회원 정보 = $savedMember")
 
-        // 저장된 엔티티를 MemberResponseDTO로 매핑하여 반환
-        return modelMapper.map(savedMember, MemberResponseDTO::class.java)
+        return MemberResponseDTO(savedMember).also { log.info("image 값 변환된 회원 정보: $it") }
     }
 
     fun read(memberId: String): MemberResponseDTO {
         return memberRepository.getMemberResponseDTO(memberId) ?: throw MemberException.NOT_FOUND.get()
     }
 
-    // 📌둘 중🔼🔽 어느것이 성능이 더 좋은지??
+    // 📌둘 중🔼🔽 어느것이 성능이 더 좋은지?? -> 🔼 성능 우수
     fun read2(memberId: String): MemberResponseDTO {
         val member = memberRepository.findById(memberId).orElseThrow { MemberException.NOT_FOUND.get() }
-        return modelMapper.map(member, MemberResponseDTO::class.java)
+        return MemberResponseDTO(member!!)
     }
 
-    fun modify(memberUpdateDTO: MemberUpdateDTO): MemberResponseDTO {
-        val member = memberRepository.findByIdOrNull(memberUpdateDTO.memberId)
+    fun modify(memberId: String, memberUpdateDTO: MemberUpdateDTO): MemberResponseDTO {
+        val member = memberRepository.findByIdOrNull(memberId) ?: throw MemberException.NOT_FOUND.get()
+
+        with(member) {
+            memberUpdateDTO.email?.let { email = it }
+            memberUpdateDTO.phoneNumber?.let { phoneNumber = it }
+            memberUpdateDTO.name?.let { name = it }
+            memberUpdateDTO.password?.let { password = bCryptPasswordEncoder.encode(it) }  // 비밀번호 암호화 추가
+            memberUpdateDTO.sex?.let { sex = it }
+            memberUpdateDTO.address?.let { address = it }
+
+            image = if (memberUpdateDTO.image == null) MemberImage("default_avatar.png")
+            else MemberImage(memberUpdateDTO.image)
+        }
+
+        val updatedMember = memberRepository.save(member)
+        return MemberResponseDTO(updatedMember).also { log.info("최종 수정된 회원 정보: $it") }
+    }
+
+
+    fun adminModify(memberId: String, memberUpdateDTO: MemberUpdateDTO): MemberResponseDTO {
+        val member = memberRepository.findByIdOrNull(memberId)
             ?: throw MemberException.NOT_FOUND.get()
 
         with(member) {
@@ -63,27 +80,37 @@ class MemberService (
             memberUpdateDTO.email?.let { email = it }
             memberUpdateDTO.phoneNumber?.let { phoneNumber = it }
             memberUpdateDTO.name?.let { name = it }
-            memberUpdateDTO.password?.let { password = it }
+            memberUpdateDTO.password?.let { password = bCryptPasswordEncoder.encode(it) }  // 비밀번호 암호화 추가
             memberUpdateDTO.sex?.let { sex = it }
             memberUpdateDTO.address?.let { address = it }
+            memberUpdateDTO.role?.let { role = it } // 관리자만 수정 가능한 필드
 
-            // image가 null이면 기본 이미지 설정, 아니면 수정
             image = if (memberUpdateDTO.image == null) MemberImage("default_avatar.png")
             else MemberImage(memberUpdateDTO.image)
         }
 
-        // 변경된 엔티티를 저장 후 MemberResponseDTO로 반환
         val updatedMember = memberRepository.save(member)
-        return modelMapper.map(updatedMember, MemberResponseDTO::class.java)
+        return MemberResponseDTO(updatedMember).also { log.info("관리자가 수정한 회원 정보: $it") }
     }
 
-    fun remove(memberId: String) { // 📌강사님께 더 코틀린스럽게 바꿀 수 있는지 여쭈어보기
+
+    fun remove(memberId: String) {
         if (!memberRepository.existsById(memberId)) {
             throw MemberException.NOT_FOUND.get()
         }
         memberRepository.deleteById(memberId)
-        log.info("삭제 완료")
+        log.info("유저에 의해 삭제 완료: $memberId")
     }
+
+    // 📌둘 중🔼🔽 어느것이 성능이 더 좋은지?? -> 테스트 해보기
+    fun adminRemove(memberId: String) {
+        val member = memberRepository.findByIdOrNull(memberId)
+            ?: throw MemberException.NOT_FOUND.get()
+
+        memberRepository.delete(member)
+        log.info("관리자에 의해 회원 삭제 완료: $memberId")
+    }
+
 
     fun getList(): List<MemberResponseDTO> {
         // JPA 기본 메서드로 모든 Member 데이터 조회
@@ -104,10 +131,10 @@ class MemberService (
             existingMemberResponse.get()
         } else {
             // 가입되지 않은 경우, 새로운 멤버 등록
-            val encodedPassword = bCryptPasswordEncoder.encode(cosKey)
+            //val encodedPassword = bCryptPasswordEncoder.encode(cosKey)
             val newMemberRequest = MemberRequestDTO().apply {
                 this.memberId = memberId
-                this.password = encodedPassword
+                //this.password = encodedPassword
             }
             // 새로운 회원 등록
             register(newMemberRequest)

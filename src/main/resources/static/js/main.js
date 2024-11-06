@@ -1,3 +1,10 @@
+// 쿠키에서 특정 쿠키 이름으로 값을 가져오는 함수
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
 function parseJwt(token) {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -11,11 +18,20 @@ function parseJwt(token) {
 let tokenMemberId;
 
 document.addEventListener("DOMContentLoaded", function() {
-    const jwtToken = localStorage.getItem("jwtToken");
+
+    let jwtToken = localStorage.getItem("jwtToken");
+
+    // 로컬 스토리지에 jwtToken이 없을 경우 쿠키에서 가져와 저장
+    if (!jwtToken) {
+        jwtToken = getCookie("jwtToken");
+        if (jwtToken) {
+            localStorage.setItem("jwtToken", jwtToken);
+        }
+    }
 
     if (jwtToken) {
         const decodedToken = parseJwt(jwtToken);
-        tokenMemberId = decodedToken.memberId; //
+        tokenMemberId = decodedToken.memberId;
         const role = decodedToken.role;
         if (role.includes("ROLE_ADMIN")) {
             window.location.href = "/app/admin";

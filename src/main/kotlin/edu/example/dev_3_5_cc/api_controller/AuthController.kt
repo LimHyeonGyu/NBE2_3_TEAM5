@@ -7,6 +7,9 @@ import edu.example.dev_3_5_cc.entity.Member
 import edu.example.dev_3_5_cc.entity.OAuthToken
 import edu.example.dev_3_5_cc.jwt.JWTUtil
 import edu.example.dev_3_5_cc.service.MemberService
+import jakarta.servlet.http.Cookie
+import jakarta.servlet.http.HttpServletResponse
+import org.aspectj.weaver.tools.cache.SimpleCacheFactory.path
 import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -17,7 +20,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.stereotype.Controller
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,17 +31,20 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
 import java.util.*
 
-@RestController
+@Controller
 class AuthController (
     val memberService: MemberService,
     val jwtUtil: JWTUtil,
+    val responseHeader: HttpServletResponse,
     private val modelMapper: ModelMapper,
     private val authenticationManager: AuthenticationManager,
 
-){
+    ){
 
     @GetMapping("auth/kakao/callback")
-    fun kakaoCallback(code: String): String {
+    fun kakaoCallback(code: String) : String { // ResponseEntity<Map<String, String>> {
+
+        //-------------------------------------------------카카오 api 서버에 accessToken 요청하는 단계
 
         //POST방식으로 key=value 데이터를 요청 (카카오쪽으로)
         val rt: RestTemplate = RestTemplate()
@@ -70,6 +78,8 @@ class AuthController (
 
         println("카카오 엑세스 토큰: ${oauthToken.access_token}")
 
+        //-------------------------------------------------카카오 api 서버에 accessToken으로 사용자 정보 요청하는 단계
+
         val rt2: RestTemplate = RestTemplate()
 
         //HttpHeader 오브젝트 생성
@@ -83,32 +93,38 @@ class AuthController (
         //Http 요청하기 - POST방식으로 - Response변수의 응답 받음
         val response2: ResponseEntity<String> = rt2.exchange(
             "https://kapi.kakao.com/v2/user/me",
-            HttpMethod.POST,
+            HttpMethod.GET,
             kakaoProfileRequest,
             String::class.java
         )
         val objectMapper2 = ObjectMapper()
         val kakaoProfile : KakaoProfile = objectMapper2.readValue(response2.body, KakaoProfile::class.java)
 
+        //-------------------------------------------------요청 받은 사용자 정보로 자동 회원 등록 및 로그인 단계
+
         val newKakaoProfile = memberService.findOrRegisterKakaoMember(kakaoProfile)
-        println("카카오 아이디(번호): ${newKakaoProfile.memberId}")
-        println("카카오 비밀번호:${newKakaoProfile.password}")
 
+        val authentication = UsernamePasswordAuthenticationToken(newKakaoProfile, null, listOf(SimpleGrantedAuthority("ROLE_USER")))
+        SecurityContextHolder.getContext().authentication = authentication
 
-        //로그인 처리
-        return try {
-            val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(newKakaoProfile.memberId, newKakaoProfile.password))
-            if (authentication.isAuthenticated) {
-                val jwtToken = jwtUtil.createAccessToken(newKakaoProfile.memberId!!,"ROLE_USER",1000 * 60 * 60 * 10L)
-                println("발급된 JWT: ${jwtToken}" )
-            }
-            SecurityContextHolder.getContext().authentication = authentication
+        println("New Kakao Profile: ${newKakaoProfile}")
 
-            "redirect:/"
-        } catch (ex: BadCredentialsException) {
-            //로그인 실패 시 처리
-            println("로그인 실패: ${ex.message}")
-            return "redirect:/login?error=invalid_credentials"
+        val jwtToken = jwtUtil.createAccessToken(newKakaoProfile.memberId!!,"ROLE_USER",1000 * 60 * 60 * 10L)
+
+        // 쿠키 생성
+        val cookie = Cookie("jwtToken", jwtToken).apply {
+            path = "/"
+            isHttpOnly = false // 보안 상 HttpOnly로 설정하여 JavaScript에서 접근할 수 없도록 함
+            maxAge = (60 * 60 * 10) // 쿠키 유효 시간 설정 (초 단위)
         }
+
+        // 로그로 쿠키 정보 출력
+        println("Generated JWT Cookie: Name=${cookie.name}, Value=${cookie.value}, Path=${cookie.path}, HttpOnly=${cookie.isHttpOnly}, MaxAge=${cookie.maxAge}")
+
+        // 응답 헤더에 쿠키 추가
+        responseHeader.addCookie(cookie)
+
+        // return ResponseEntity.ok(mapOf("token" to token))
+        return "redirect:/";
     }
 }

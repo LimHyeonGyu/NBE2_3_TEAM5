@@ -42,21 +42,23 @@ class SecurityConfig(
             .formLogin { it.disable() }
             .httpBasic { it.disable() }
             // 기존 인가 설정
-//            .authorizeHttpRequests {
-//                it.requestMatchers(
-//                    "/login", "/signup","/",
-//                    "cc/reply", "/cc/member", "/cc/product/**",
-//                    "/cc/review/**", "/cc/board", "/cc/board/{boardId}",
-//                    "/css/**", "/js/**", "/images/**", "/app/**", "/uploadPath/**"
-//                ).permitAll()
-//                    .requestMatchers("/cc/mypage/**", "cc/memberImage/**").hasRole("USER")
-//                    .requestMatchers("/cc/admin/**", "cc/productImage/**").hasRole("ADMIN")
-//                    .anyRequest().authenticated()
-//            }
-            // 모든 경로 허용 설정
             .authorizeHttpRequests {
-                it.anyRequest().permitAll()
+                it.requestMatchers(
+                    "/login", "/signup","/",
+                    "/cc/reply", "/cc/member", "/cc/product/**",
+                    "/cc/review/**", "/cc/board", "/cc/board/{boardId}",
+                    "/css/**", "/js/**", "/images/**", "/app/**", "/uploadPath/**",
+                    "/auth/kakao/**", "/favicon.ico"
+                ).permitAll()
+                    .requestMatchers("/cc/mypage/**", "cc/memberImage/**").hasRole("USER")
+                    .requestMatchers("/cc/admin/**", "cc/productImage/**").hasRole("ADMIN")
+                    .anyRequest().authenticated()
             }
+            // 모든 경로 허용 설정
+//            .authorizeHttpRequests {
+//                it.anyRequest().permitAll()
+//            }
+
             .addFilterBefore(JWTFilter(jwtUtil), LoginFilter::class.java)
             .addFilterAt(
                 LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),

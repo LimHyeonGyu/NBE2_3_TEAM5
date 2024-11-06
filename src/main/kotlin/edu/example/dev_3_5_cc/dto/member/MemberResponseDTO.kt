@@ -14,19 +14,17 @@ data class MemberResponseDTO(
     var role: String? = null,
     var createdAt: LocalDateTime? = null,
     var updatedAt: LocalDateTime? = null
-)
-//{
-//    constructor(member: Member): this(
-//        memberId = member.memberId,
-//        email = member.email,
-//        phoneNumber = member.phoneNumber,
-//        name = member.name,
-//        sex = member.sex,
-//        address = member.address,
-//        image = member.image?.filename,
-//        role = member.role,
-//        createdAt = member.createdAt,
-//        updatedAt = member.updatedAt
-//    )
-//}
-//
+) {
+    constructor(member: Member): this(
+        memberId = member.memberId,
+        email = member.email,
+        phoneNumber = member.phoneNumber,
+        name = member.name,
+        sex = member.sex,
+        address = member.address,
+        image = member.image?.filename,
+        role = member.role,
+        createdAt = member.createdAt,
+        updatedAt = member.updatedAt
+    )
+}
