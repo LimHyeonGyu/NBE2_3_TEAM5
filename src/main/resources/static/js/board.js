@@ -402,23 +402,23 @@ addBoardBtn.addEventListener('click', () => {
 
     const createBtn = row.querySelector('#create-btn');
     createBtn.addEventListener('click', () => {
-       const board = {
-           memberId: tokenMemberId,
-           title: document.getElementById('input-title').value,
-           description: document.getElementById('input-description').value,
-           category: 'GENERAL'
-       };
+        const board = {
+            memberId: tokenMemberId,
+            title: document.getElementById('input-title').value,
+            description: document.getElementById('input-description').value,
+            category: 'GENERAL'
+        };
         const images = document.getElementById('input-files').files;
 
-       fetchCreateBoard(board).then( data=> {
-           if (images.length > 0) {
-               return fetchUpBoardImage(data.boardId, images);
-           }
-           return Promise.resolve();
-       }).then(()=>{
-           alert('등록완료');
-           window.location.href = "/app/board";
-       });
+        fetchCreateBoard(board).then( data=> {
+            if (images.length > 0) {
+                return fetchUpBoardImage(data.boardId, images);
+            }
+            return Promise.resolve();
+        }).then(()=>{
+            alert('등록완료');
+            window.location.href = "/app/board";
+        });
     });
 
     const cancelBtn = row.querySelector('#cancel-btn');

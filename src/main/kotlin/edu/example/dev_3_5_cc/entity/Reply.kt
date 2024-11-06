@@ -1,5 +1,6 @@
 package edu.example.dev_3_5_cc.entity
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -11,7 +12,7 @@ import java.time.LocalDateTime
 data class Reply(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var replyId: Long? = 0,
+    var replyId: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
@@ -21,7 +22,8 @@ data class Reply(
     @JoinColumn(name = "member_id")
     var member: Member? = null,
 
-    var content: String? = null,
+    @Column(nullable = false)
+    var content: String,
 
     // 부모 댓글을 참조 (부모 댓글이 없는 경우 최상위 댓글)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,8 +31,10 @@ data class Reply(
     var parent: Reply? = null,
 
     @OneToMany(mappedBy = "reply", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JsonManagedReference
     var likes: MutableList<ReplyLike> = mutableListOf(),
 
+    @Column(nullable = false)
     var likeCount: Int = 0,
 
     @CreatedDate
@@ -39,7 +43,7 @@ data class Reply(
     @LastModifiedDate
     var updatedAt: LocalDateTime? = null
 
-){
+) {
     // 좋아요 추가 메서드
     fun addLike(replyLike: ReplyLike) {
         likes.add(replyLike)

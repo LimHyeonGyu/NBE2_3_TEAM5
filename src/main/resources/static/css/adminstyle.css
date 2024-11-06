@@ -140,6 +140,7 @@ li:hover {
     border: 1px solid rgba(0, 0, 0, 0.3);
     background-color: var(--admin-nav-color);
     padding: 4px;
+    margin-top: 4px;
 }
 
 
@@ -219,5 +220,4 @@ li:hover {
 #pagination button.active {
 
 }
-
 
