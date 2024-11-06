@@ -99,6 +99,7 @@ class AuthController (
         )
         val objectMapper2 = ObjectMapper()
         val kakaoProfile : KakaoProfile = objectMapper2.readValue(response2.body, KakaoProfile::class.java)
+        println("카카오 프로필: ${kakaoProfile}")
 
         //-------------------------------------------------요청 받은 사용자 정보로 자동 회원 등록 및 로그인 단계
 
