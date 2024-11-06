@@ -1,5 +1,6 @@
 package edu.example.dev_3_5_cc.util
 
+import edu.example.dev_3_5_cc.dto.board.BoardResponseDTO
 import edu.example.dev_3_5_cc.entity.Board
 import edu.example.dev_3_5_cc.entity.BoardImage
 import edu.example.dev_3_5_cc.entity.QBoard.board
@@ -9,6 +10,7 @@ import jakarta.annotation.PostConstruct
 import net.coobird.thumbnailator.Thumbnails
 import org.hibernate.query.sqm.tree.SqmNode.log
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.CacheManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
@@ -18,7 +20,8 @@ import java.util.UUID
 
 @Component
 class BoardUploadUtil(
-    private val boardRepository: BoardRepository
+    private val boardRepository: BoardRepository,
+    private val cacheManager: CacheManager
 ) {
 
     @Value("\${edu.example.upload.path}")
@@ -77,7 +80,9 @@ class BoardUploadUtil(
             }
         }
 
-        boardRepository.save(board)
+        boardRepository.save(board).apply {
+            boardId.let { cacheManager.getCache("board")?.put(it, BoardResponseDTO(this))}
+        }
         return filenames
     }
 
@@ -97,7 +102,9 @@ class BoardUploadUtil(
 //            if (thumbFile.exists()) thumbFile.delete()
 
             board.removeImage(boardImage)
-            boardRepository.save(board)
+            boardRepository.save(board).apply {
+                boardId.let { cacheManager.getCache("board")?.put(it, BoardResponseDTO(this))}
+            }
 
         } catch (e: Exception) {
             log.error { "파일 삭제 중 에러 발생: ${e.message}" }

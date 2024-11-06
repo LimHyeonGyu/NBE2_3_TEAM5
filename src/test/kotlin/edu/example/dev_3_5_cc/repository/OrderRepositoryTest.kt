@@ -35,7 +35,7 @@ class OrderRepositoryTest {
 
         // 테스트를 위한 Product 생성 및 저장
         product = Product().apply {
-            pName = "Test Product"
+            pname = "Test Product"
             price = 100L
             description = "Test Description"
             stock = 10

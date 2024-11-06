@@ -7,8 +7,7 @@ import java.io.Serializable
 data class ProductListDTO(
     val productId: Long? = null,
 
-    @JsonProperty("pName")
-    val pName: String? = null,
+    val pname: String? = null,
 
     val price: Long? = null,
 
@@ -18,7 +17,7 @@ data class ProductListDTO(
 ): Serializable {
     constructor(product: Product): this (
         productId= product.productId,
-        pName = product.pName,
+        pname = product.pname,
         price = product.price,
         stock = product.stock,
         pimage = product.images.first().filename

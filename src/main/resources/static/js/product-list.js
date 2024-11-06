@@ -1,41 +1,5 @@
 import { fetchReadProducts, fetchReadProductPage, fetchReadProductSearch } from './fetch.js';
 
-// document.addEventListener("DOMContentLoaded", function () {
-//     fetchReadProductPage().then(data => {
-//         const div = document.getElementById('product-list');
-//         div.innerHTML = '';
-//         data.content.forEach((item, index) => {
-//             const productDiv = document.createElement('div');
-//
-//             productDiv.addEventListener('click', () => getProduct(item.productId));
-//
-//             const productImg = document.createElement('img');
-//             productImg.src = `/uploadPath/${item.pimage}`;
-//             productImg.alt = '이미지 없음';
-//
-//             productImg.onerror = function() {
-//                 this.src = `/images/image01.png`
-//
-//             }
-//
-//             const productName = document.createElement('p');
-//             productName.textContent = `${item.pname}`;
-//
-//             const hr = document.createElement('hr');
-//
-//             const productPrice = document.createElement('p');
-//             const price = item.price.toLocaleString();
-//             productPrice.textContent = `${price}원`;
-//             productDiv.appendChild(productImg);
-//             productDiv.appendChild(productName);
-//             productDiv.appendChild(hr);
-//             productDiv.appendChild(productPrice);
-//
-//             div.appendChild(productDiv);
-//
-//         });
-//     });
-// });
 document.addEventListener("DOMContentLoaded", function () {
     let currentPage = 1;  // 기본 1페이지로 설정
 

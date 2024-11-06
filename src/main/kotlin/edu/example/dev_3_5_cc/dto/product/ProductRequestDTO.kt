@@ -6,8 +6,7 @@ import edu.example.dev_3_5_cc.entity.ProductImage
 import jakarta.validation.constraints.Min
 
 data class ProductRequestDTO(
-    @JsonProperty("pName")
-    val pName: String? = null,
+    val pname: String? = null,
 
     @field:Min(0)
     val price: Long? = null,
@@ -20,7 +19,7 @@ data class ProductRequestDTO(
     val images: List<String> = emptyList()
 ) {
     constructor(product: Product): this (
-        pName = product.pName,
+        pname = product.pname,
         price = product.price,
         description = product.description,
         stock = product.stock,
@@ -28,7 +27,7 @@ data class ProductRequestDTO(
     )
 
     fun toEntity(): Product = Product(
-        pName = pName,
+        pname = pname,
         price = price,
         description = description,
         stock = stock,

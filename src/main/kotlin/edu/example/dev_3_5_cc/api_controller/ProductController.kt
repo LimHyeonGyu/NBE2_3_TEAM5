@@ -25,9 +25,9 @@ class ProductController(
     }
 
     // 물품 이름별 조회
-    @GetMapping("/listByPName/{pName}")
-    fun listByPName(@PathVariable pName: String): ResponseEntity<List<ProductListDTO>> {
-        val products = productService.getListByPname(pName)
+    @GetMapping("/listByPname/{pname}")
+    fun listByPname(@PathVariable pname: String): ResponseEntity<List<ProductListDTO>> {
+        val products = productService.getListByPname(pname)
         return ResponseEntity.ok(products)
     }
 

@@ -40,8 +40,8 @@ import org.springframework.data.repository.findByIdOrNull
 //        memberRepository.deleteAll()
 //        member = Member(memberId = "testMember")
 //        memberRepository.save(member)
-//        product1 = Product(pName = "Product1", price = 100L)
-//        product2 = Product(pName = "Product2", price = 200L)
+//        product1 = Product(pname = "Product1", price = 100L)
+//        product2 = Product(pname = "Product2", price = 200L)
 //        productRepository.saveAll(listOf(product1, product2))
 //    }
 //
